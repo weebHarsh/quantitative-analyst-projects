@@ -1,0 +1,337 @@
+<title>Where Profit Came From</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column of panels. Each panel is headline, large picture, one caption.
+   Anchoring analogy: an airport currency booth. */
+:root {
+  --bg: #f2f5f7;
+  --surface: #ffffff;
+  --fg: #122229;
+  --muted: #566872;
+  --line: #c4d0d7;
+  --accent: #0a7c76;
+  --accent-soft: #d3ece9;
+  --neg: #c2410c;
+  --neg-soft: #fbe3d6;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+    --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+  --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-body);
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 720px; margin: 0 auto; display: grid; gap: 44px; }
+h1 { font: 700 2.1rem/1.1 var(--font-display); margin: 0; text-wrap: balance; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+h2 { font: 700 1.45rem/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.plate { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+svg.fig { display: block; width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: 0.97rem; }
+.body { margin: 0; max-width: 62ch; }
+.src { color: var(--muted); font: 500 0.78rem/1.4 var(--font-mono); margin: 0; }
+b.term { font-weight: 600; }
+
+/* shared SVG styling, all colours from tokens */
+svg text { font-family: var(--font-body); font-size: 20px; fill: var(--fg); }
+svg .m { fill: var(--muted); }
+svg .n { font-family: var(--font-mono); font-weight: 700; }
+svg .s { font-size: 15px; }
+svg .big { font-size: 25px; }
+svg .xs { font-size: 12px; }
+.plate.wide { overflow-x: auto; }
+.plate.wide svg.fig { min-width: 560px; }
+svg .a { fill: var(--accent); }
+svg .r { fill: var(--neg); }
+svg .ln { stroke: var(--fg); stroke-width: 2.5; fill: none; }
+svg .ln-m { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+svg .dash { stroke-dasharray: 6 6; }
+svg .box { fill: var(--surface); stroke: var(--fg); stroke-width: 2.5; }
+svg .box-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+svg .bar-a { fill: var(--accent); }
+svg .bar-r { fill: var(--neg); }
+svg .zone { fill: var(--neg-soft); }
+#ah path { fill: var(--fg); }
+@media (max-width: 480px) { h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; } .plate { padding: 8px; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z"/>
+    </marker>
+  </defs>
+</svg>
+
+<main>
+  <header>
+    <h1>Where profit came from</h1>
+    <p class="src">Numbers: seeded sample run, 6 hours, 15,895 fills. Source: projects/01-post-trade-analytics/examples/sample_report.md</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="panel">
+    <h2>A market maker is a currency booth: buy low, sell high.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 300" role="img" aria-label="A booth buys at 99.99 and sells at 100.01; the halfway price is 100.00 and each half of the gap is 0.01">
+          <!-- customer left -->
+          <circle cx="56" cy="112" r="16" class="box"/>
+          <rect x="36" y="132" width="40" height="58" rx="10" class="box"/>
+          <!-- customer right -->
+          <circle cx="544" cy="112" r="16" class="box"/>
+          <rect x="524" y="132" width="40" height="58" rx="10" class="box"/>
+          <!-- booth -->
+          <rect x="225" y="62" width="150" height="24" class="box-a"/>
+          <rect x="235" y="86" width="130" height="114" class="box"/>
+          <text x="300" y="132" text-anchor="middle" class="m">mid</text>
+          <text x="300" y="164" text-anchor="middle" class="n big">100.00</text>
+          <!-- arrows -->
+          <line x1="90" y1="150" x2="226" y2="150" class="ln" marker-end="url(#ah)"/>
+          <line x1="374" y1="150" x2="510" y2="150" class="ln" marker-end="url(#ah)"/>
+          <text x="158" y="136" text-anchor="middle">we buy</text>
+          <text x="158" y="178" text-anchor="middle" class="n">99.99</text>
+          <text x="442" y="136" text-anchor="middle">we sell</text>
+          <text x="442" y="178" text-anchor="middle" class="n">100.01</text>
+          <!-- number line -->
+          <line x1="130" y1="246" x2="470" y2="246" class="ln-m"/>
+          <rect x="130" y="238" width="170" height="16" class="bar-a" opacity="0.9"/>
+          <rect x="300" y="238" width="170" height="16" class="bar-a" opacity="0.55"/>
+          <text x="215" y="228" text-anchor="middle" class="a n">+0.01</text>
+          <text x="385" y="228" text-anchor="middle" class="a n">+0.01</text>
+          <line x1="130" y1="236" x2="130" y2="258" class="ln"/>
+          <line x1="300" y1="236" x2="300" y2="258" class="ln"/>
+          <line x1="470" y1="236" x2="470" y2="258" class="ln"/>
+          <text x="130" y="284" text-anchor="middle" class="n s">99.99</text>
+          <text x="300" y="284" text-anchor="middle" class="n s">100.00</text>
+          <text x="470" y="284" text-anchor="middle" class="n s">100.01</text>
+        </svg>
+      </div>
+      <figcaption>Each side of a trade earns half the gap between the two prices (the spread).</figcaption>
+    </figure>
+    <p class="body">The halfway price is the <b class="term">mid</b>. Against the mid, each trade here earns 0.01 (spread capture). Our real run earned about 0.6 basis points per trade (bps, where one bps is 0.01%).</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="panel">
+    <h2>Between trades the booth holds stock, and prices keep moving.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 300" role="img" aria-label="Holding 20 units while the price falls from 100.00 to 99.90 loses 2.00">
+          <rect x="40" y="204" width="110" height="26" class="box-a"/>
+          <rect x="40" y="174" width="110" height="26" class="box-a"/>
+          <rect x="40" y="144" width="110" height="26" class="box-a"/>
+          <rect x="40" y="114" width="110" height="26" class="box-a"/>
+          <rect x="40" y="84" width="110" height="26" class="box-a"/>
+          <text x="95" y="62" text-anchor="middle" class="m">stock held</text>
+          <text x="95" y="262" text-anchor="middle" class="n">+20 units</text>
+          <!-- price path -->
+          <line x1="250" y1="90" x2="548" y2="90" class="ln-m dash"/>
+          <polyline points="250,90 310,106 360,98 420,150 480,172 540,210" class="ln"/>
+          <circle cx="250" cy="90" r="6" class="box"/>
+          <circle cx="540" cy="210" r="6" class="bar-r"/>
+          <text x="250" y="70" text-anchor="middle" class="n s">100.00</text>
+          <text x="540" y="238" text-anchor="middle" class="n s">99.90</text>
+          <text x="440" y="116" text-anchor="middle" class="m">price falls</text>
+          <line x1="560" y1="92" x2="560" y2="208" class="ln" stroke="var(--neg)" marker-end="url(#ah)"/>
+          <text x="400" y="272" text-anchor="middle" class="n r big">20 × −0.10 = −2.00</text>
+        </svg>
+      </div>
+      <figcaption>The stock a booth sits on is its inventory. Here it loses 2.00 as the price drops (inventory PnL).</figcaption>
+    </figure>
+  </section>
+
+  <!-- 3 -->
+  <section class="panel">
+    <h2>Total profit and loss (PnL) splits into three parts.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 340" role="img" aria-label="Spread earned +188.94, stock moves -151.95, fees -31.58, total +5.42">
+          <line x1="20" y1="270" x2="580" y2="270" class="ln-m"/>
+          <!-- spread -->
+          <rect x="40" y="118.8" width="110" height="151.2" class="bar-a"/>
+          <text x="95" y="106" text-anchor="middle" class="n a big">+188.94</text>
+          <line x1="150" y1="118.8" x2="175" y2="118.8" class="ln-m dash"/>
+          <!-- inventory -->
+          <rect x="175" y="118.8" width="110" height="121.6" class="bar-r"/>
+          <text x="230" y="264" text-anchor="middle" class="n r big">−151.95</text>
+          <line x1="285" y1="240.4" x2="310" y2="240.4" class="ln-m dash"/>
+          <!-- fees -->
+          <rect x="310" y="240.4" width="110" height="25.3" class="bar-r"/>
+          <text x="365" y="294" text-anchor="middle" class="n r big">−31.58</text>
+          <line x1="420" y1="265.7" x2="445" y2="265.7" class="ln-m dash"/>
+          <!-- total -->
+          <rect x="445" y="265.7" width="110" height="4.3" class="bar-a"/>
+          <text x="500" y="252" text-anchor="middle" class="n a big">+5.42</text>
+          <text x="95" y="322" text-anchor="middle" class="m">spread earned</text>
+          <text x="230" y="322" text-anchor="middle" class="m">stock moves</text>
+          <text x="365" y="322" text-anchor="middle" class="m">fees</text>
+          <text x="500" y="322" text-anchor="middle" class="m">total</text>
+        </svg>
+      </div>
+      <figcaption>In the sample run, the spread earned 189 and stock moves gave back 152.</figcaption>
+    </figure>
+    <p class="body">The three parts add up to the booth's real worth. A test checks that to nine decimals. Fees are the exchange's cut.</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="panel">
+    <h2>The code is a pipeline: trades and prices in, report out.</h2>
+    <figure>
+      <div class="plate wide">
+        <svg class="fig" viewBox="0 0 640 290" role="img" aria-label="Fills and quotes flow through PnL split, markouts and risk stats into a report; two checks guard it">
+          <rect x="8" y="90" width="88" height="64" class="box"/>
+          <text x="52" y="118" text-anchor="middle">fills</text>
+          <text x="52" y="142" text-anchor="middle">quotes</text>
+
+          <rect x="140" y="90" width="88" height="64" class="box-a"/>
+          <text x="184" y="118" text-anchor="middle">split</text>
+          <text x="184" y="142" text-anchor="middle" class="n xs m">pnl.py</text>
+
+          <rect x="272" y="90" width="88" height="64" class="box-a"/>
+          <text x="316" y="118" text-anchor="middle">markouts</text>
+          <text x="316" y="142" text-anchor="middle" class="n xs m">markouts.py</text>
+
+          <rect x="404" y="90" width="88" height="64" class="box-a"/>
+          <text x="448" y="118" text-anchor="middle">risk</text>
+          <text x="448" y="142" text-anchor="middle" class="n xs m">risk.py</text>
+
+          <rect x="536" y="90" width="96" height="64" class="box"/>
+          <text x="584" y="118" text-anchor="middle">report</text>
+          <text x="584" y="142" text-anchor="middle" class="n xs m">report.py</text>
+
+          <line x1="98" y1="122" x2="138" y2="122" class="ln" marker-end="url(#ah)"/>
+          <line x1="230" y1="122" x2="270" y2="122" class="ln" marker-end="url(#ah)"/>
+          <line x1="362" y1="122" x2="402" y2="122" class="ln" marker-end="url(#ah)"/>
+          <line x1="494" y1="122" x2="534" y2="122" class="ln" marker-end="url(#ah)"/>
+          <text x="118" y="76" text-anchor="middle" class="s m">reads</text>
+          <text x="250" y="76" text-anchor="middle" class="s m">parts</text>
+          <text x="382" y="76" text-anchor="middle" class="s m">scores</text>
+          <text x="514" y="76" text-anchor="middle" class="s m">numbers</text>
+
+          <!-- checks -->
+          <line x1="184" y1="156" x2="184" y2="206" class="ln-m dash"/>
+          <rect x="124" y="208" width="120" height="48" class="box"/>
+          <text x="184" y="238" text-anchor="middle" class="a">must add up</text>
+
+          <line x1="316" y1="156" x2="316" y2="206" class="ln-m dash"/>
+          <rect x="256" y="208" width="120" height="48" class="box"/>
+          <text x="316" y="232" text-anchor="middle" class="a s">C++ copy</text>
+          <text x="316" y="250" text-anchor="middle" class="a s">must match</text>
+        </svg>
+      </div>
+      <figcaption>Two tests guard it: the parts must add up, and a C++ copy must agree.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 5 -->
+  <section class="panel">
+    <h2>A trade's verdict arrives later: did the price move against us?</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 320" role="img" aria-label="Average edge per trade falls from 0.60 bps right away to 0.37 after one second and 0.11 after five seconds">
+          <line x1="30" y1="250" x2="580" y2="250" class="ln-m"/>
+          <rect x="70" y="130.4" width="100" height="119.6" class="bar-a"/>
+          <rect x="250" y="175.8" width="100" height="74.2" class="bar-a" opacity="0.8"/>
+          <rect x="430" y="227.8" width="100" height="22.2" class="bar-a" opacity="0.6"/>
+          <text x="120" y="118" text-anchor="middle" class="n a big">+0.60</text>
+          <text x="300" y="164" text-anchor="middle" class="n a big">+0.37</text>
+          <text x="480" y="216" text-anchor="middle" class="n a big">+0.11</text>
+          <text x="120" y="282" text-anchor="middle" class="m">right away</text>
+          <text x="300" y="282" text-anchor="middle" class="m">after 1s</text>
+          <text x="480" y="282" text-anchor="middle" class="m">after 5s</text>
+          <line x1="170" y1="130.4" x2="568" y2="130.4" class="ln-m dash"/>
+          <line x1="568" y1="132" x2="568" y2="226" class="ln" stroke="var(--neg)" marker-end="url(#ah)"/>
+          <text x="552" y="160" text-anchor="end" class="n r">−0.49 lost</text>
+          <text x="300" y="312" text-anchor="middle" class="s m">average per trade, in bps</text>
+        </svg>
+      </div>
+      <figcaption>The edge falls from 0.60 to 0.11 basis points in five seconds.</figcaption>
+    </figure>
+    <p class="body">Customers who know a move is coming trade just before it (adverse selection). Each trade's later check is its <b class="term">markout</b>. The drop from the first bar measures the damage.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="panel">
+    <h2>Was that skill or luck? The test score says luck.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 240" role="img" aria-label="Our score of 0.16 is far below the line of 2 that separates skill from luck">
+          <rect x="60" y="58" width="400" height="120" class="zone"/>
+          <text x="260" y="84" text-anchor="middle" class="r">looks like luck</text>
+          <line x1="60" y1="178" x2="580" y2="178" class="ln-m"/>
+          <rect x="60" y="112" width="32" height="40" class="bar-a"/>
+          <text x="104" y="138" class="n a big">0.16</text>
+          <line x1="460" y1="52" x2="460" y2="190" class="ln dash"/>
+          <text x="460" y="40" text-anchor="middle">line to clear</text>
+          <text x="60" y="206" text-anchor="middle" class="n s m">0</text>
+          <text x="260" y="206" text-anchor="middle" class="n s m">1</text>
+          <text x="460" y="206" text-anchor="middle" class="n s m">2</text>
+          <text x="300" y="232" text-anchor="middle" class="s m">test score (t-statistic)</text>
+        </svg>
+      </div>
+      <figcaption>Our score is 0.16. Anything under 2 is hard to tell from a coin flip.</figcaption>
+    </figure>
+    <p class="body">The annualised Sharpe of 2.62 looks strong, but it stretches six hours of data into a year. The test score is the honest check.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="panel">
+    <h2>Read the split first, then the markouts, then the luck test.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 230" role="img" aria-label="Three checks in order: the split, the markouts, the luck test">
+          <!-- 1 split -->
+          <g transform="translate(30,20)">
+            <rect x="8" y="12" width="26" height="70" class="bar-a"/>
+            <rect x="42" y="12" width="26" height="54" class="bar-r"/>
+            <rect x="76" y="58" width="26" height="14" class="bar-r"/>
+            <rect x="110" y="68" width="26" height="6" class="bar-a"/>
+            <line x1="0" y1="84" x2="146" y2="84" class="ln-m"/>
+          </g>
+          <!-- 2 markouts -->
+          <g transform="translate(228,20)">
+            <rect x="14" y="14" width="30" height="70" class="bar-a"/>
+            <rect x="58" y="42" width="30" height="42" class="bar-a" opacity="0.75"/>
+            <rect x="102" y="70" width="30" height="14" class="bar-a" opacity="0.55"/>
+            <line x1="0" y1="84" x2="146" y2="84" class="ln-m"/>
+          </g>
+          <!-- 3 luck -->
+          <g transform="translate(426,20)">
+            <rect x="0" y="14" width="106" height="70" class="zone"/>
+            <rect x="6" y="40" width="10" height="18" class="bar-a"/>
+            <line x1="106" y1="8" x2="106" y2="90" class="ln dash"/>
+            <line x1="0" y1="84" x2="146" y2="84" class="ln-m"/>
+          </g>
+          <text x="103" y="152" text-anchor="middle" class="big">1 Split</text>
+          <text x="103" y="180" text-anchor="middle" class="m">which part earned?</text>
+          <text x="301" y="152" text-anchor="middle" class="big">2 Markouts</text>
+          <text x="301" y="180" text-anchor="middle" class="m">does edge last?</text>
+          <text x="499" y="152" text-anchor="middle" class="big">3 Luck test</text>
+          <text x="499" y="180" text-anchor="middle" class="m">beats a coin?</text>
+        </svg>
+      </div>
+      <figcaption>Each check rules out a different way of fooling yourself.</figcaption>
+    </figure>
+    <p class="body">This page uses synthetic data from a seeded simulator. It shows the method, not a real trading edge.</p>
+  </section>
+</main>
