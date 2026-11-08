@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "rmon"
 version = "0.1.0"
 description = "Live risk/strategy monitor: incremental PnL attribution, equity, drawdown and markouts"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["pta", "numpy>=1.26", "pandas>=2.1"]
 
 [project.optional-dependencies]
