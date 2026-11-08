@@ -10,6 +10,21 @@ are done by a model that did not write the code.
 | Standard | Sonnet | Well-specified writing and implementation where the design is already settled | Interview-prep drills, application templates, new module code from an agreed spec |
 | Light | Haiku | Mechanical, low-risk work with a clear source of truth | README assembled from the sample report, link and formatting checks, file listings |
 
+## Explaining complex things (standing rule from the user)
+
+Anything complex is explained with the `/eli5` skill: a picture-first HTML explainer
+published as a private artifact, with few words, for someone who knows nothing about
+the topic. Chat replies stay short and link to it. This applies to three things:
+
+| What | Where it lives | Examples |
+|---|---|---|
+| **Approach** | one explainer per project: the problem, the idea, why this design | "Where did the PnL come from?" (P1); "What does a trader watch live?" (P2) |
+| **Architecture** | one explainer per project: modules, data flow, how it plugs into earlier projects | P1 pipeline from fills and quotes to report; P2 replay, state, rules, UI on top of P1 |
+| **Learning** | `docs/learning/`: one short note per concept, each linking its explainer | markouts and adverse selection, attribution identity, incremental vs batch, hysteresis |
+
+Each project's README links its approach and architecture explainers. Explainer
+numbers come from tested output, never from memory.
+
 ## Rules
 
 1. **Decide before delegating.** A task goes to Sonnet or Haiku only once the design
