@@ -13,7 +13,7 @@ rather than a generic "predict the stock price" notebook.
 | # | Project | Status | What it shows |
 |---|---|---|---|
 | 1 | [Post-trade analytics engine](projects/01-post-trade-analytics) | Built | PnL attribution, markouts, risk stats, C++ kernel with a Python parity test |
-| 2 | Real-time risk and strategy monitoring dashboard | Planned (weeks 6-8) | Limits, alerts, live monitoring on Project 1's outputs |
+| 2 | [Risk and strategy monitor](projects/02-risk-monitor) | Built | Incremental PnL that matches Project 1, four alert rules with hysteresis, live web dashboard |
 | 3 | Multi-exchange market-data normalizer and order-book rebuild (C++) | Planned (weeks 9-12) | Market-data tooling across venues |
 | 4 | Event-driven market-making backtester | Planned (weeks 13-15) | Latency, queue position, honest strategy evaluation |
 

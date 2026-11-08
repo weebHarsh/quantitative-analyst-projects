@@ -37,7 +37,7 @@ The scores are judgement calls, not measurements. The weights matter more than t
 | Weeks | Project | Main language | Builds on |
 |---|---|---|---|
 | 1-5 | P1 Post-trade analytics engine (**built**) | Python + small C++ kernel | - |
-| 6-8 | P2 Risk & strategy monitoring dashboard | Python | P1 outputs (fills, attribution, risk) |
+| 6-8 | P2 Risk & strategy monitoring dashboard (**built**) | Python | P1 outputs (fills, attribution, risk) |
 | 9-12 | P3 Market-data normalizer + order-book rebuild | C++17 | P1's quote/fill schema |
 | 13-15 | P4 Market-making backtester (latency, queues) | C++ core, Python analysis | P3 books, P1 analytics |
 | 16 | Polish, write-ups, applications | - | all |
@@ -77,6 +77,8 @@ Code: [`projects/01-post-trade-analytics`](../projects/01-post-trade-analytics).
 - You can explain every number in the sample report without notes.
 
 ## 4. Project 2: Risk & strategy monitoring dashboard (weeks 6-8)
+
+**Status: built** in [`projects/02-risk-monitor`](../projects/02-risk-monitor). UI choice: a lightweight web page served from the standard library. All three exit criteria below are covered by tests, and the README carries the screenshot and the alert-design reasoning. The alert thresholds are calibrated to the synthetic simulator and would need recalibrating on real flow.
 
 **Goal.** Build what a trader looks at during the session: live PnL by component, inventory against limits, markout drift, and alerts.
 

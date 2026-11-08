@@ -1,0 +1,5 @@
+scenario clean: seed 7, 2 h, 72000 quotes, 5330 fills
+alerts: none
+final PnL: total -6.42 = spread 63.31 + stock moves -59.14 - fees 10.59
+position -23, max drawdown 20.71, fills 5330
+wrote /tmp/claude-0/-home-user-quantitative-analyst-projects/21cea8b8-5df8-502a-8703-d1dc411bea62/scratchpad/demo/clean/ market.csv fills.csv alerts.jsonl snapshot.json

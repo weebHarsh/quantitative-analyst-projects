@@ -1,0 +1,9 @@
+{"ts_us":1836200000,"rule":"markout_degradation","severity":"breach","metric_value":-0.7666260047962331,"threshold":-0.75,"message":"1s markout -0.766626 bps (n=211) below floor -0.75"}
+{"ts_us":2646900000,"rule":"loss_from_peak","severity":"warn","metric_value":100.22936070000043,"threshold":100.0,"message":"drawdown 100.229 from peak 43.8653 >= warn level 100"}
+{"ts_us":2922900000,"rule":"position","severity":"warn","metric_value":61.0,"threshold":60.0,"message":"|position| 61 (position -61) >= warn level 60"}
+{"ts_us":3139000000,"rule":"position","severity":"breach","metric_value":101.0,"threshold":100.0,"message":"|position| 101 (position -101) >= breach level 100"}
+{"ts_us":3159300000,"rule":"markout_degradation","severity":"clear","metric_value":-0.22611285851731003,"threshold":-0.25,"message":"1s markout -0.226113 bps (n=282) recovered to >= -0.25"}
+{"ts_us":3497300000,"rule":"loss_from_peak","severity":"breach","metric_value":200.72298850001857,"threshold":200.0,"message":"drawdown 200.723 from peak 43.8653 >= breach level 200"}
+{"ts_us":3649400000,"rule":"fill_rate","severity":"breach","metric_value":5.0,"threshold":6.0,"message":"5 fills in 60s window, below min 6"}
+{"ts_us":4338700000,"rule":"fill_rate","severity":"clear","metric_value":10.0,"threshold":10.0,"message":"10 fills in 60s window, back inside band (bound 10)"}
+{"ts_us":4613400000,"rule":"position","severity":"clear","metric_value":37.0,"threshold":40.0,"message":"position -37 back below 40"}
