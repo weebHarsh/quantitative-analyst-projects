@@ -45,14 +45,17 @@ class Engine:
         self.rules = build_rules(limits)
         self.rule_states: dict[str, RuleState] = {r.name: RuleState() for r in self.rules}
         self.alerts: list[Alert] = []
-        self._evaluated_ts: int | None = None
+        # True while the state holds events no rule has seen yet. A flush in the middle of
+        # an instant evaluates what is there, and a later event at the same timestamp makes
+        # the instant dirty again, so it is evaluated once more when it closes.
+        self._dirty = False
 
     # ------------------------------------------------------------------ feed
     def _evaluate(self) -> list[Alert]:
         st = self.state
-        if st.ts_us is None or st.ts_us == self._evaluated_ts:
+        if st.ts_us is None or not self._dirty:
             return []
-        self._evaluated_ts = st.ts_us
+        self._dirty = False
         snap = st.snapshot()
         out: list[Alert] = []
         for rule in self.rules:
@@ -74,6 +77,7 @@ class Engine:
             st.on_quote(ev)
         else:
             st.on_fill(ev)
+        self._dirty = True      # only reached if the state accepted the event
         return out
 
     def flush(self) -> list[Alert]:

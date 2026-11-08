@@ -77,6 +77,10 @@ _SECTIONS: dict[str, type] = {
     "fill_rate": FillRateLimits,
     "markout": MarkoutLimits,
 }
+# 100 bps is 1%: no quantity-weighted markout at a one-second horizon gets near it, so a
+# larger hysteresis can only be a typo that stops the markout alert from ever clearing.
+MAX_MARKOUT_HYSTERESIS_BPS = 100.0
+
 _SIGNED = {("markout", "floor_bps")}          # the only field allowed to be negative
 _POSITIVE = {("position", "warn"), ("position", "breach"),
              ("loss_from_peak", "warn"), ("loss_from_peak", "breach"),
@@ -151,9 +155,17 @@ def _check_consistency(lim: Limits) -> None:
                           "min_fills + hysteresis <= max_fills - hysteresis")
     if fr.min_fills == 0 and fr.max_fills == 0:
         raise LimitsError("[fill_rate] min_fills and max_fills cannot both be 0")
+    if fr.warmup_us < fr.window_us:
+        raise LimitsError(f"[fill_rate] warmup_us ({fr.warmup_us}) must be at least window_us "
+                          f"({fr.window_us}); before the window has filled the count is "
+                          "artificially low and would raise a false breach")
     mk = lim.markout
     if mk.min_samples < 1:
         raise LimitsError("[markout] min_samples must be >= 1")
+    if mk.hysteresis_bps > MAX_MARKOUT_HYSTERESIS_BPS:
+        raise LimitsError(f"[markout] hysteresis_bps ({mk.hysteresis_bps}) is above "
+                          f"{MAX_MARKOUT_HYSTERESIS_BPS} bps; the recovery level would sit "
+                          "above any markout the strategy can reach, so the alert could never clear")
 
 
 def load_limits(path: str | Path) -> Limits:

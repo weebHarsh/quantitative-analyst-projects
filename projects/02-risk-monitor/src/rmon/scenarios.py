@@ -167,8 +167,12 @@ def bad(seed: int = 7, hours: float = 2.0, mm_seed: int = 11) -> Scenario:
     for k, (name, share, m_over, mm_over, skew, bias) in enumerate(BAD_PHASES):
         n = (n_total - used) if k == len(BAD_PHASES) - 1 else int(round(share * n_total))
         used += n
-        mcfg = replace(base_m, seed=seed * 1000 + k, hours=n * dt / 3600e6, s0=s0, **m_over)
+        # simulate_market truncates int(hours*3600e6/dt); ask for half a row more so float
+        # error can never leave the segment one row short.
+        mcfg = replace(base_m, seed=seed * 1000 + k, hours=(n + 0.5) * dt / 3600e6, s0=s0, **m_over)
         mkt, flow = simulate_market(mcfg)
+        if len(mkt) < n:
+            raise RuntimeError(f"segment {name!r} came back with {len(mkt)} rows, wanted {n}")
         mkt = mkt.iloc[:n].copy()
         flow = flow[:n]
         mkt["ts_us"] = mkt["ts_us"].to_numpy() + t0

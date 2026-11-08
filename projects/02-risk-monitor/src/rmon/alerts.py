@@ -69,6 +69,8 @@ class RuleState:
     level: str | None = None          # None, 'warn' or 'breach'
     last_fire_ts: int | None = None   # ts of the last warn/breach emitted
     start_ts: int | None = None       # first instant evaluated (for warm-up)
+    detail: str | None = None         # direction of the current breach (rules that have one)
+    last_fire_sev: str | None = None  # severity of the last warn/breach emitted
 
 
 def _g(x: float) -> str:
@@ -93,6 +95,10 @@ class _Rule:
     def describe(self, snap: dict, v: float, sev: str, thr: float) -> str:
         raise NotImplementedError
 
+    def detail(self, v: float) -> str | None:
+        """Which way the metric is out of bounds, for rules where that matters."""
+        return None
+
     def evaluate(self, snap: dict, state: RuleState | None = None
                  ) -> tuple[RuleState, list[Alert]]:
         state = state or RuleState()
@@ -109,22 +115,29 @@ class _Rule:
         if state.level is None:
             if sev is None:
                 return state, []
-            if state.last_fire_ts is not None and ts - state.last_fire_ts < self.cooldown_us:
+            # Cooldown damps repeats of the same or a lower severity than the last alert.
+            # A higher severity (warn, clear, then breach) always fires, the same way an
+            # escalation while still active skips the cooldown.
+            if (state.last_fire_ts is not None and ts - state.last_fire_ts < self.cooldown_us
+                    and _RANK[sev] <= _RANK[state.last_fire_sev]):
                 return state, []                      # suppressed by cooldown
             return self._fire(snap, state, ts, v, sev, thr)
         if _RANK[sev] > _RANK[state.level]:
             return self._fire(snap, state, ts, v, sev, thr)   # escalation
+        if sev is not None and sev == state.level and self.detail(v) != state.detail:
+            return self._fire(snap, state, ts, v, sev, thr)   # same level, other direction
         if sev is None:
             ok, rthr = self.recovery(v)
             if ok:
                 a = Alert(ts, self.name, "clear", float(v), float(rthr),
                           self.describe(snap, v, "clear", rthr))
-                return replace(state, level=None), [a]
+                return replace(state, level=None, detail=None), [a]
         return state, []
 
     def _fire(self, snap, state, ts, v, sev, thr):
         a = Alert(ts, self.name, sev, float(v), float(thr), self.describe(snap, v, sev, thr))
-        return replace(state, level=sev, last_fire_ts=ts), [a]
+        return replace(state, level=sev, last_fire_ts=ts, last_fire_sev=sev,
+                       detail=self.detail(v)), [a]
 
 
 class _TwoLevelRule(_Rule):
@@ -193,6 +206,13 @@ class FillRateRule(_Rule):
         if v > self.lim.max_fills:
             return "breach", float(self.lim.max_fills)
         return None, float(self.lim.min_fills)
+
+    def detail(self, v):
+        if v < self.lim.min_fills:
+            return "low"
+        if v > self.lim.max_fills:
+            return "high"
+        return None
 
     def recovery(self, v):
         lo = self.lim.min_fills + self.lim.hysteresis
