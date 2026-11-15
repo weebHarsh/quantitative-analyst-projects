@@ -20,12 +20,12 @@ A C++17 normalizer that turns two synthetic venue feeds into one fixed-point eve
 
 | Phase | Result |
 |---|---|
-| Parse | 3.48 million events/s |
-| Apply (pre-parsed events in merged order, no merge step) | 21.8 million events/s |
-| End-to-end (parse + sessions + merge + latency summary) | 2.23 million events/s |
-| Per-update latency | p50 75 ns, p99 169 ns |
+| Parse | 3.95 million events/s |
+| Apply (pre-parsed events in merged order, no merge step) | 23.1 million events/s |
+| End-to-end (parse + sessions + merge + latency summary) | 2.02 million events/s |
+| Per-update latency | p50 71 ns, p99 158 ns |
 
-The latency figures include about 29 ns of timer overhead. That overhead is reported but not subtracted. Throughput varied by roughly 30 percent between runs on this machine.
+The latency figures include about 28 ns of timer overhead. That overhead is reported but not subtracted. Throughput varied by roughly 30 percent between runs on this machine.
 
 ## How it works
 

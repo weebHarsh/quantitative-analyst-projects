@@ -266,23 +266,23 @@ svg .num { fill: var(--bg); font-family: var(--font-mono); font-weight: 700; fon
 
   <!-- 7 -->
   <section class="panel">
-    <h2>Millions of updates a second, each applied in about 75 nanoseconds.</h2>
+    <h2>Millions of updates a second, each applied in about 70 nanoseconds.</h2>
     <figure>
       <div class="plate">
-        <svg class="fig" viewBox="0 0 600 330" role="img" aria-label="Parsing runs at 3.48 million events per second, merged apply at 21.8 million, end to end at 2.23 million; applying one update takes a median 75 nanoseconds and 169 at the 99th percentile, against 29 nanoseconds of timer cost">
+        <svg class="fig" viewBox="0 0 600 330" role="img" aria-label="Parsing runs at 3.95 million events per second, merged apply at 23.1 million, end to end at 2.02 million; applying one update takes a median 71 nanoseconds and 158 at the 99th percentile, against 28 nanoseconds of timer cost">
           <text x="20" y="28" class="m">events per second (millions)</text>
-          <text x="20" y="66">parse</text><rect x="170" y="48" width="63.3" height="26" class="bar-a" fill="var(--accent)"/><text x="244" y="68" class="n s">3.48</text>
-          <text x="20" y="108">apply</text><rect x="170" y="90" width="396" height="26" fill="var(--accent)"/><text x="560" y="108" text-anchor="end" class="n s" style="fill:var(--bg)">21.8</text>
-          <text x="20" y="150">end to end</text><rect x="170" y="132" width="40.5" height="26" fill="var(--accent)"/><text x="222" y="152" class="n s">2.23</text>
+          <text x="20" y="66">parse</text><rect x="170" y="48" width="71.8" height="26" class="bar-a" fill="var(--accent)"/><text x="253" y="68" class="n s">3.95</text>
+          <text x="20" y="108">apply</text><rect x="170" y="90" width="420" height="26" fill="var(--accent)"/><text x="560" y="108" text-anchor="end" class="n s" style="fill:var(--bg)">23.1</text>
+          <text x="20" y="150">end to end</text><rect x="170" y="132" width="36.7" height="26" fill="var(--accent)"/><text x="219" y="152" class="n s">2.02</text>
           <text x="20" y="206" class="m">time per update (nanoseconds)</text>
-          <text x="20" y="244">median</text><rect x="170" y="226" width="150" height="26" fill="var(--accent)"/><text x="332" y="246" class="n s">75</text>
-          <text x="20" y="284">99th pct</text><rect x="170" y="266" width="338" height="26" fill="var(--neg)"/><text x="520" y="286" class="n s">169</text>
-          <text x="20" y="320" class="s m">timer cost</text><rect x="170" y="306" width="58" height="14" fill="var(--muted)"/><text x="240" y="318" class="n xs m">29</text>
+          <text x="20" y="244">median</text><rect x="170" y="226" width="142" height="26" fill="var(--accent)"/><text x="324" y="246" class="n s">71</text>
+          <text x="20" y="284">99th pct</text><rect x="170" y="266" width="316" height="26" fill="var(--neg)"/><text x="498" y="286" class="n s">158</text>
+          <text x="20" y="320" class="s m">timer cost</text><rect x="170" y="306" width="56" height="14" fill="var(--muted)"/><text x="238" y="318" class="n xs m">28</text>
         </svg>
       </div>
       <figcaption>One shared machine, synthetic feeds, about 30% run-to-run variation. Read these as orders of magnitude.</figcaption>
     </figure>
-    <p class="body">The timer's own cost (29 ns) is included in the update times, so they are upper bounds. Parsing, not the board, is the slowest step.</p>
+    <p class="body">The timer's own cost (28 ns) is included in the update times, so they are upper bounds. Parsing, not the board, is the slowest step.</p>
   </section>
 
   <!-- 8 -->

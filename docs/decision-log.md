@@ -232,11 +232,25 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Status:** Active.
 
 ### D35. Benchmark method and how to read it (2026-11-15)
-- **Decision:** One command (`make bench`) builds Release with `-Werror`, generates and caches a synthetic feed, discards one warm-up rep, and reports the median of five timed reps. Latency is `steady_clock` around each apply call, and the timer's own cost (about 29 ns per call pair) is reported but not subtracted.
+- **Decision:** One command (`make bench`) builds Release with `-Werror`, generates and caches a synthetic feed, discards one warm-up rep, and reports the median of five timed reps. Latency is `steady_clock` around each apply call, and the timer's own cost (about 28 ns per call pair) is reported but not subtracted.
 - **Why:** Reproducible and honest about measurement error. Per-update latencies near the timer cost are an upper bound, not a precise figure; throughput moved by roughly 30% between runs on this shared machine.
-- **My measured run (2026-11-15, GCC 13.3.0, -O3):** 1,083,204 messages and 1,236,823 events; parse 3.48M events/s; merged apply 21.8M events/s; end-to-end 2.23M events/s; update latency p50 75 ns, p99 169 ns.
+- **My measured run (2026-11-15, GCC 13.3.0, -O3, after the review fixes):** 1,083,204 messages and 1,236,823 events; parse 3.95M events/s; merged apply 23.1M events/s; end-to-end 2.02M events/s; update latency p50 71 ns, p99 158 ns; timer cost about 28 ns.
+- **Earlier run, before the merge was rewritten to sort globally (D36 review fix):** parse 3.48M, apply 21.8M, end-to-end 2.23M events/s; p50 75 ns, p99 169 ns. The differences are inside the roughly 30% run-to-run variation, but the code path changed, so the later run is the one quoted elsewhere.
 - **Limits:** synthetic feeds, a single machine, no network or disk effects; not a claim about a production feed handler.
 - **Evidence:** `projects/03-market-data/bench/run_bench.sh`, `src/bench.cpp`.
+- **Status:** Active.
+
+### D43. Project 3 review fixes (2026-11-15)
+- **Findings (independent Opus review, each reproduced by the reviewer and again by me):**
+  1. The merge kept each feed's file order, so a feed with out-of-order local timestamps produced an export whose `ts_us` went backwards and repeated, and the merge disagreed with the generator's reference pipeline (gaps 1 vs 2).
+  2. `bench` exited 6 ("counters unstable") whenever a feed had a parse error, because only one phase counted bad lines.
+  3. Signed int64 overflow (undefined behaviour) on extreme input values in the latency sum, the cross-venue quantity sums, the latency difference and the export mid.
+- **Decision:** (1) `run_merged` now parses both feeds, stable-sorts all messages by (local time, venue id) as the reference does, then applies them. (2) The benchmark takes parse-error lines out of the end-to-end counters before comparing, so it is comparable. (3) Sums and differences of untrusted values saturate (`include/md/saturate.hpp`); an export row whose mid could overflow is skipped.
+- **Proof it was broken and is fixed:** I built the committed original in a throwaway worktree. On the same inputs it hit UBSan signed-overflow errors, exported a negative mid (`-0.015`) for absurd prices, and produced non-increasing timestamps; the fixed build does none of these. Nine new regression tests in `tests/test_review_regressions.cpp` pass in both builds, and a mutation check (disabling the sort) makes them fail.
+- **Fuzzing result from the review:** 5,200 mutated-feed iterations, no crashes, hangs or ASan findings; the only UBSan hits were the overflows fixed here.
+- **Cost:** `run_merged` now holds all parsed events in memory before applying them (the benchmark already did). The end-to-end rate moved from 2.23M to 2.02M events/s, within run-to-run noise.
+- **Known design deviation, kept as built:** `DESIGN.md` section 10 says the benchmark builds in `build-release` and caches the feed in `/tmp/md_bench_feeds`; the implementation uses `build/` and `build/bench-feed/` so the cache stays inside the project and is ignored by git.
+- **Evidence:** `projects/03-market-data/src/merge.cpp`, `src/bench.cpp`, `include/md/saturate.hpp`, `tests/test_review_regressions.cpp`.
 - **Status:** Active.
 
 ## Project 4: backtester
@@ -285,5 +299,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 4 implementation is in progress; add its decisions as D43 onward.
+- Project 4 implementation is in progress; add its decisions as D44 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).

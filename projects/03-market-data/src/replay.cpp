@@ -1,4 +1,5 @@
 #include "md/replay.hpp"
+#include "md/saturate.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -110,7 +111,7 @@ ReplayResult replay_feed(const Feed& feed, const ReplayOptions& opt) {
             if (opt.err != nullptr) *opt.err << "parse error line " << i << ": " << parser.error() << '\n';
             continue;
         }
-        lat.add(evs.front().local_ts_ns - evs.front().exch_ts_ns);
+        lat.add(sat_sub(evs.front().local_ts_ns, evs.front().exch_ts_ns));
         for (const Event& e : evs) session.on_event(e);
         if (opt.tob != nullptr) {
             const TopOfBook t = session.top();

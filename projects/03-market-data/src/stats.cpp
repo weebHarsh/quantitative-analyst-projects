@@ -1,4 +1,5 @@
 #include "md/stats.hpp"
+#include "md/saturate.hpp"
 
 #include <algorithm>
 
@@ -22,7 +23,7 @@ LatencySummary LatencyStats::summary() const {
     std::vector<std::int64_t> v = samples_;
     std::sort(v.begin(), v.end());
     s.count = static_cast<std::int64_t>(v.size());
-    for (std::int64_t x : v) s.sum_ns += x;
+    for (std::int64_t x : v) s.sum_ns = sat_add(s.sum_ns, x);
     s.mean_ns = static_cast<double>(s.sum_ns) / static_cast<double>(s.count);
     s.p50_ns = nearest_rank(v, 50);
     s.p99_ns = nearest_rank(v, 99);

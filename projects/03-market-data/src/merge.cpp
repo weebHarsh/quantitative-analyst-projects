@@ -4,8 +4,11 @@
 #include <string>
 #include <vector>
 
+#include <algorithm>
+
 #include "md/parser_a.hpp"
 #include "md/parser_b.hpp"
+#include "md/saturate.hpp"
 
 namespace md {
 
@@ -24,7 +27,7 @@ bool Merger::update(Venue v, const TopOfBook& t, std::int64_t local_ts_ns) {
                 q.bid_qty = tb.bid_qty;
                 q.bid_venues = bit;
             } else if (tb.bid_px == q.bid_px) {
-                q.bid_qty += tb.bid_qty;
+                q.bid_qty = sat_add(q.bid_qty, tb.bid_qty);
                 q.bid_venues = static_cast<std::uint8_t>(q.bid_venues | bit);
             }
         }
@@ -34,7 +37,7 @@ bool Merger::update(Venue v, const TopOfBook& t, std::int64_t local_ts_ns) {
                 q.ask_qty = tb.ask_qty;
                 q.ask_venues = bit;
             } else if (tb.ask_px == q.ask_px) {
-                q.ask_qty += tb.ask_qty;
+                q.ask_qty = sat_add(q.ask_qty, tb.ask_qty);
                 q.ask_venues = static_cast<std::uint8_t>(q.ask_venues | bit);
             }
         }
@@ -46,70 +49,62 @@ bool Merger::update(Venue v, const TopOfBook& t, std::int64_t local_ts_ns) {
 
 namespace {
 
-// One venue's stream: lazily parses lines, skipping (and counting) the ones that fail.
-class Cursor {
-public:
-    Cursor(const Feed& f, Venue v) : feed_(f), venue_(v), session_(v) {
-        lat_.reserve(f.lines.size());
-        advance();
-    }
-    bool have() const { return have_; }
-    std::int64_t ts() const { return evs_.front().local_ts_ns; }
-
-    // Process the current message, then move to the next parseable one.
-    void consume() {
-        lat_.add(evs_.front().local_ts_ns - evs_.front().exch_ts_ns);
-        for (const Event& e : evs_) session_.on_event(e);
-        advance();
-    }
-    // Top after the message just consumed (valid between consume() and the next consume()).
-    TopOfBook top() const { return session_.top(); }
-    const VenueSession& session() const { return session_; }
-    const LatencyStats& lat() const { return lat_; }
-
-private:
-    void advance() {
-        have_ = false;
-        while (next_ < feed_.lines.size()) {
-            evs_.clear();
-            const std::int64_t idx = static_cast<std::int64_t>(next_++);
-            const std::string_view line = feed_.lines[static_cast<std::size_t>(idx)];
-            const ParseStatus st = venue_ == Venue::A ? pa_.parse(line, idx, evs_) : pb_.parse(line, idx, evs_);
-            if (st == ParseStatus::Error) {
-                session_.note_parse_error();
-                continue;
-            }
-            have_ = true;
-            return;
-        }
-    }
-
-    const Feed& feed_;
-    Venue venue_;
-    ParserA pa_;
-    ParserB pb_;
-    VenueSession session_;
-    LatencyStats lat_;
-    std::vector<Event> evs_;
-    std::size_t next_ = 0;
-    bool have_ = false;
+struct Msg {
+    std::int64_t ts;        // local receive time of the message
+    std::size_t begin, end; // its events in the shared event vector
+    Venue venue;
 };
+
+// Parse every line of one feed. Lines that fail are counted on the venue's session and skipped.
+void load_feed(const Feed& f, Venue v, std::vector<Event>& evs, std::vector<Msg>& msgs, VenueSession& session) {
+    ParserA pa;
+    ParserB pb;
+    std::vector<Event> tmp;
+    for (std::size_t i = 0; i < f.lines.size(); ++i) {
+        tmp.clear();
+        const std::int64_t idx = static_cast<std::int64_t>(i);
+        const ParseStatus st = v == Venue::A ? pa.parse(f.lines[i], idx, tmp) : pb.parse(f.lines[i], idx, tmp);
+        if (st == ParseStatus::Error) {
+            session.note_parse_error();
+            continue;
+        }
+        if (tmp.empty()) continue;
+        Msg m;
+        m.ts = tmp.front().local_ts_ns;
+        m.begin = evs.size();
+        evs.insert(evs.end(), tmp.begin(), tmp.end());
+        m.end = evs.size();
+        m.venue = v;
+        msgs.push_back(m);
+    }
+}
 
 }  // namespace
 
 MergeSummary run_merged(const Feed& a, const Feed& b,
                         const std::function<void(const MergedQuote&)>& sink) {
-    Cursor ca(a, Venue::A), cb(b, Venue::B);
+    VenueSession sess[2] = {VenueSession(Venue::A), VenueSession(Venue::B)};
+    LatencyStats lat[2];
+    std::vector<Event> evs;
+    std::vector<Msg> msgs;
+    evs.reserve(2 * (a.lines.size() + b.lines.size()) + 16);
+    msgs.reserve(a.lines.size() + b.lines.size());
+    load_feed(a, Venue::A, evs, msgs, sess[0]);
+    load_feed(b, Venue::B, evs, msgs, sess[1]);
+    // Global order is (local_ts_ns, venue id, file order). A's block precedes B's in `msgs` and
+    // the sort is stable, so sorting on (ts, venue) gives exactly that, even when a feed's own
+    // timestamps are out of order. This matches the reference pipeline in tools/gen_feeds.py.
+    std::stable_sort(msgs.begin(), msgs.end(), [](const Msg& x, const Msg& y) {
+        return x.ts != y.ts ? x.ts < y.ts : x.venue < y.venue;
+    });
+
     Merger merger;
     MergeSummary s;
-    while (ca.have() || cb.have()) {
-        // Order by (local_ts_ns, venue id, msg_index); within a venue file order is msg_index.
-        const bool take_a = ca.have() && (!cb.have() || ca.ts() <= cb.ts());
-        Cursor& c = take_a ? ca : cb;
-        const Venue v = take_a ? Venue::A : Venue::B;
-        const std::int64_t ts = c.ts();
-        c.consume();
-        if (merger.update(v, c.top(), ts)) {
+    for (const Msg& m : msgs) {
+        const std::size_t vi = static_cast<std::size_t>(m.venue);
+        lat[vi].add(sat_sub(evs[m.begin].local_ts_ns, evs[m.begin].exch_ts_ns));
+        for (std::size_t i = m.begin; i < m.end; ++i) sess[vi].on_event(evs[i]);
+        if (merger.update(m.venue, sess[vi].top(), m.ts)) {
             const MergedQuote& q = merger.current();
             ++s.merged_quotes;
             if (q.bid_venues != 0 && q.ask_venues != 0) {
@@ -119,12 +114,11 @@ MergeSummary run_merged(const Feed& a, const Feed& b,
             if (sink) sink(q);
         }
     }
-    s.counters[0] = ca.session().counters();
-    s.counters[1] = cb.session().counters();
-    s.final_state[0] = ca.session().state();
-    s.final_state[1] = cb.session().state();
-    s.latency[0] = ca.lat().summary();
-    s.latency[1] = cb.lat().summary();
+    for (std::size_t i = 0; i < 2; ++i) {
+        s.counters[i] = sess[i].counters();
+        s.final_state[i] = sess[i].state();
+        s.latency[i] = lat[i].summary();
+    }
     return s;
 }
 

@@ -63,7 +63,8 @@ add_executable(md_tests
   tests/test_stats.cpp
   tests/test_merge.cpp
   tests/test_export.cpp
-  tests/test_golden.cpp)
+  tests/test_golden.cpp
+  tests/test_review_regressions.cpp)
 target_compile_definitions(md_tests PRIVATE MD_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(md_tests PRIVATE mdlib)
 

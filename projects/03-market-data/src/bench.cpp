@@ -219,6 +219,12 @@ BenchResult run_bench(const Feed& a, const Feed& b, const BenchConfig& cfg) {
         const double sec = seconds_since(t0);
         if (quotes != s.merged_quotes) r.counters_stable = false;
         VenueCounters ca = s.counters[0], cb = s.counters[1];
+        // The apply phases see only parsed messages; run_merged also counts unparseable lines.
+        // Take those out so the two are comparable and a feed with bad lines is not "unstable".
+        ca.messages -= ca.parse_errors;
+        ca.parse_errors = 0;
+        cb.messages -= cb.parse_errors;
+        cb.parse_errors = 0;
         check(ca, cb);
         e2e_msgs = ca.messages + cb.messages;
         e2e_events = ca.events + cb.events;
