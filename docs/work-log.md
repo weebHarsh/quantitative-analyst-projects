@@ -32,6 +32,7 @@ What was done, in order, who did it (model tier), and the evidence. Append a row
 | 2026-11-15 | Three Project 4 learning notes; numbers, table labels and test names verified by me | next commit | Sonnet (checked by me) | `docs/learning/*.md` | D22, D45 |
 | 2026-11-15 | Project 4 independent review (Opus: no logic defects; 5,000 fuzz iterations) and fixes for three edge cases; study re-run unchanged | next commit | Opus (review), me (fixes) | 67 C++ tests in both builds, 17 Python tests; original repros now exit 2 | D46 |
 | 2026-11-15 | Project 4 explainer (private page, source in repo); two label collisions found on the first look and fixed, checked again | next commit | me | [page](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC) | D22 |
+| 2026-11-15 | Project 4 README (headline numbers and seed ranges checked against the results table; quickstart including `pta report` and `rmon run` run end to end; exit codes checked against the code) | next commit | Haiku (checked by me) | `projects/04-backtester/README.md` | D45, D46 |
 
 ## Test totals at each milestone
 - After Project 1: 16 tests.
