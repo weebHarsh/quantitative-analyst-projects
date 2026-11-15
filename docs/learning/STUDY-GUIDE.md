@@ -24,7 +24,7 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | 6 | Live numbers equal end-of-day numbers | same | [incremental vs batch](incremental-vs-batch.md) | `state.py`: `MonitorState`; `replay.py` |
 | 7 | A verdict that arrives later | same | [late markouts](late-markouts.md) | `markouts_stream.py`: `MarkoutTracker` |
 | 8 | Alerts that do not flap | same | [hysteresis and cooldown](hysteresis-and-cooldown.md) | `alerts.py`, `engine.py`, `limits.py`, `config/limits.toml` |
-| 9 | Project 3: market-data normalizer | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) (source: `explainers/project-3.html`) | [Project 3 README](../../projects/03-market-data/README.md) (being written) | `projects/03-market-data/` (`include/md/`, `src/`, `DESIGN.md`) |
+| 9 | Project 3: market-data normalizer | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) (source: `explainers/project-3.html`) [Project 3 README](../../projects/03-market-data/README.md); notes: [order book basics](order-book-basics.md), [gap detection and resync](gap-detection-and-resync.md), [fixed-point prices](fixed-point-prices.md) | `projects/03-market-data/` (`include/md/`, `src/`, `DESIGN.md`) |
 | 10 | Project 4: backtester | pending | pending | `projects/04-backtester/` (planned) |
 
 ## Trace map: concept to code, test, decision, commit

@@ -6,6 +6,9 @@ One short note per concept, each linking its `/eli5` explainer once published
 | Concept | Project | Note | Explainer |
 |---|---|---|---|
 | Approach and architecture (two venues into one board, whole-number prices, gaps and resync, merging, speed) | 3 | covered in the explainer | [published page](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV), source in `explainers/project-3.html` |
+| Order book basics (bids, asks, levels, spread, crossed and locked) | 3 | [note](order-book-basics.md) | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) |
+| Gap detection and resync | 3 | [note](gap-detection-and-resync.md) | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) |
+| Fixed-point prices and saturating arithmetic | 3 | [note](fixed-point-prices.md) | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) |
 | Approach and architecture (live monitor, incremental vs batch, waiting line for markouts, alert dials, reset gap, calibration) | 2 | covered in the explainer | [published page](https://claude.ai/artifact/KxGTJVjza6dBftFdujEp7T), source in `explainers/project-2.html` |
 | Approach and architecture (booth analogy, PnL split, markouts, luck test) | 1 | covered in the explainer | [published page](https://claude.ai/artifact/9JtqoccdFaeneuCV5VFCgu), source in `explainers/project-1.html` |
 | PnL attribution identity | 1 | [note](attribution-identity.md) | [Project 1 explainer](https://claude.ai/artifact/9JtqoccdFaeneuCV5VFCgu) |

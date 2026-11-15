@@ -27,6 +27,7 @@ What was done, in order, who did it (model tier), and the evidence. Append a row
 | 2026-11-15 | Project 4 design spec (about 1,265 lines): event loop, latency, three queue models, strategy, outputs, determinism, sensitivity study, test plan | next commit | Opus | design only; blocker (Project 3 not built) since resolved | D36-D42 |
 | 2026-11-15 | Project 3 independent review (Opus: 3 defects, 5,200 fuzz iterations) and fixes: merge sorts globally, bench counters, saturating arithmetic; benchmark rerun and figures updated everywhere | next commit | Opus (review), me (fixes) | 85 C++ tests in both builds, zero warnings, regression tests mutation-checked; original code shown failing on the same inputs | D43 |
 | 2026-11-15 | Project 4 C++ core: event loop, latency with cancels in flight, three queue models, market-maker port, outputs in Project 1's schema, determinism hash | next commit | Sonnet (verified by me) | 66 tests in both builds, deterministic hash, output validates in Project 1 | D44 |
+| 2026-11-15 | Three Project 3 learning notes (order book basics, gap detection and resync, fixed-point prices); symbols, paths, tick size and golden numbers verified by me | next commit | Sonnet (checked by me) | `docs/learning/*.md` | D22 |
 
 ## Test totals at each milestone
 - After Project 1: 16 tests.
