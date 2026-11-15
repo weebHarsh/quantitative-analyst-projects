@@ -1,0 +1,80 @@
+{
+ "generator": "tools/gen_feeds.py",
+ "synthetic": true,
+ "note": "Synthetic feeds modelled on common conventions; not any real venue's format.",
+ "seed": 7,
+ "hours": 0.0004166666666666667,
+ "golden": true,
+ "faults": true,
+ "t0_ns": 1700000000000000000,
+ "step_ns": 100000000,
+ "tick": 0.01,
+ "lot": 0.001,
+ "top_n": 10,
+ "venues": {
+  "A": {
+   "file": "venueA.jsonl",
+   "lines": 44,
+   "snapshots": 5,
+   "updates": 33,
+   "trades": 6,
+   "params": {
+    "name": "A",
+    "vid": 0,
+    "touch_delay_ns": [
+     100000,
+     2000000
+    ],
+    "widen_switch_prob": 0.0,
+    "noise_rate": 1.2,
+    "pair_prob": 0.3,
+    "trade_prob": 0.25,
+    "window": 3,
+    "min_depth": 2,
+    "snap_every_steps": 3,
+    "snap_phase": 0,
+    "lat_base_ns": 300000,
+    "lat_extra_mean_ns": 200000,
+    "clock_offset_ns": 0,
+    "seq_start": 1000000,
+    "trade_id_start": 1
+   },
+   "exchange_ts_unit": "us",
+   "true_mean_latency_ns": 500000,
+   "clock_offset_ns": 0,
+   "apparent_mean_latency_ns_approx": 500000
+  },
+  "B": {
+   "file": "venueB.csv",
+   "lines": 87,
+   "snapshots": 6,
+   "updates": 44,
+   "trades": 5,
+   "params": {
+    "name": "B",
+    "vid": 1,
+    "touch_delay_ns": [
+     5000000,
+     40000000
+    ],
+    "widen_switch_prob": 0.1,
+    "noise_rate": 1.2,
+    "pair_prob": 0.0,
+    "trade_prob": 0.2,
+    "window": 3,
+    "min_depth": 2,
+    "snap_every_steps": 3,
+    "snap_phase": 2,
+    "lat_base_ns": 1200000,
+    "lat_extra_mean_ns": 600000,
+    "clock_offset_ns": 300000,
+    "seq_start": 5000000,
+    "trade_id_start": 900000
+   },
+   "exchange_ts_unit": "ns",
+   "true_mean_latency_ns": 1800000,
+   "clock_offset_ns": 300000,
+   "apparent_mean_latency_ns_approx": 1500000
+  }
+ }
+}
