@@ -1,5 +1,7 @@
 #include "bt/strategy_schedule.hpp"
 
+#include <algorithm>
+
 namespace bt {
 
 ScheduledQuoter::ScheduledQuoter(ScheduleParams p) : p_(p) {}
@@ -26,7 +28,9 @@ void ScheduledQuoter::on_timer(std::int64_t timer_id, const MarketView& v, Strat
         const OrderId id = ctx.send_order(Side::Ask, v.ask_px, p_.qty_lots);
         if (id >= 1) ctx.set_timer(now + p_.life_ns, 2 * id + 1);
     }
-    ctx.set_timer(now + p_.period_ns, 0);
+    // A period of 0 (or less) would re-arm at the same instant forever and exhaust memory.
+    // bt_run requires at least 1 microsecond; the library only guarantees time advances (1 ns).
+    ctx.set_timer(now + std::max<std::int64_t>(p_.period_ns, 1), 0);
 }
 
 }  // namespace bt

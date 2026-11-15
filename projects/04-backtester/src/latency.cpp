@@ -4,6 +4,8 @@
 #include <cmath>
 #include <limits>
 
+#include "md/saturate.hpp"
+
 namespace bt {
 
 std::uint64_t SplitMix64::next() {
@@ -31,19 +33,19 @@ std::int64_t LatencyModel::jitter() {
 }
 
 std::int64_t LatencyModel::entry_arrival(std::int64_t send_ns) {
-    const std::int64_t t = std::max(send_ns + c_.entry_ns + jitter(), last_in_);
+    const std::int64_t t = std::max(md::sat_add(md::sat_add(send_ns, c_.entry_ns), jitter()), last_in_);
     last_in_ = t;
     return t;
 }
 
 std::int64_t LatencyModel::cancel_arrival(std::int64_t send_ns) {
-    const std::int64_t t = std::max(send_ns + c_.cancel_ns + jitter(), last_in_);
+    const std::int64_t t = std::max(md::sat_add(md::sat_add(send_ns, c_.cancel_ns), jitter()), last_in_);
     last_in_ = t;
     return t;
 }
 
 std::int64_t LatencyModel::report_arrival(std::int64_t exch_ns) {
-    const std::int64_t t = std::max(exch_ns + c_.ack_ns + jitter(), last_out_);
+    const std::int64_t t = std::max(md::sat_add(md::sat_add(exch_ns, c_.ack_ns), jitter()), last_out_);
     last_out_ = t;
     return t;
 }

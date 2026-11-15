@@ -273,7 +273,10 @@ TEST(golden_venue_a_end_to_end) {
         CHECK_EQ(r.res.summary.input_events, static_cast<std::int64_t>(ev.size()));
         CHECK_EQ(r.res.summary.input_trades, 6);
         CHECK(r.res.summary.orders_sent > 0);
-        CHECK_EQ(r.res.summary.fills + 0, 0);  // run_backtest leaves the write-step fields at 0
+        // run_backtest leaves summary.fills at 0 (write_outputs completes it); the fills it produced
+        // are in res.fills and in the CSV, header plus one row each plus the trailing empty split.
+        CHECK_EQ(static_cast<std::int64_t>(split(r.fills_csv, '\n').size()) - 2,
+                 static_cast<std::int64_t>(r.res.fills.size()));
         // the second run is byte-identical
         const sc::RunOut r2 = go(l);
         CHECK(r2.fills_csv == r.fills_csv);
@@ -326,7 +329,9 @@ TEST(write_outputs_writes_five_consistent_files) {
         if (o.status == bt::OrderStatus::Filled) CHECK_EQ(o.filled_lots, o.qty_lots);
     }
     CHECK_EQ(open, res.summary.orders_open_at_end);
-    CHECK(std::filesystem::path(base + "x").parent_path().string() == dir.path + "/nested/run");
+    // write_outputs must have created the nested directories it was given
+    CHECK(std::filesystem::is_directory(dir.path + "/nested/run"));
+    CHECK(std::filesystem::exists(base + "fills.csv"));
     // unwritable destination is reported, not thrown
     std::string err2;
     CHECK(!bt::write_outputs("/proc/definitely/not/writable", res, cfg, market.str(), err2));

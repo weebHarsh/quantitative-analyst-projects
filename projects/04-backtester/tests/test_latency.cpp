@@ -111,3 +111,17 @@ TEST(event_queue_orders_by_ts_rank_then_push_order) {
     const std::vector<std::int64_t> expect{4, 3, 5, 2, 6, 1, 7};
     CHECK(order == expect);
 }
+
+// Review regression: huge latencies or timestamps overflowed signed int64 (undefined behaviour).
+TEST(latency_arrival_times_saturate_instead_of_overflowing) {
+    constexpr std::int64_t kMax = 9223372036854775807LL;
+    bt::LatencyConfig c;
+    c.entry_ns = kMax;
+    c.cancel_ns = kMax;
+    c.ack_ns = kMax;
+    bt::LatencyModel m(c);
+    CHECK_EQ(m.entry_arrival(kMax), kMax);
+    CHECK_EQ(m.cancel_arrival(kMax), kMax);
+    CHECK_EQ(m.report_arrival(kMax), kMax);
+    CHECK_EQ(m.entry_arrival(5), kMax);
+}

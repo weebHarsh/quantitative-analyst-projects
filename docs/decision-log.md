@@ -307,6 +307,18 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Evidence:** `projects/04-backtester/results/` (both settings), `python/sensitivity.py`; my ablation run on seed 7 is reproduced in the harness.
 - **Status:** Active.
 
+### D46. Project 4 review fixes (2026-11-15)
+- **Review result (independent Opus, read-only):** no defects in the queue models, cancel-in-flight handling, the order/cancel channel, event ordering, post-only, cross fills, bookkeeping or determinism. 5,000 fuzz iterations under ASan/UBSan (515k fills, 531k orders, 44.7M queue-invariant checks) found nothing; a 500-feed per-order model-ordering fuzz found no violation. On a fill-independent schedule, per-order filled lots satisfy OPTIMISTIC >= CA(1) >= CA(0.5) >= CA(0.25) >= CA(0) = BACK. For the market maker the order id sets differ between models, so per-order ordering cannot be tested; totals still came out in model order at every latency.
+- **Defects found and fixed (each reproduced by the reviewer and by me):**
+  1. `--schedule-period-us 0` re-armed a timer at the same instant forever and exhausted memory (my repro with a 600 MB cap aborted). `bt_run` now rejects it with exit 2; the library guarantees time advances by at least 1 ns.
+  2. Huge latency values overflowed signed int64 (undefined behaviour, visible under UBSan). `bt_run` now rejects any latency or jitter outside 0 to 1,000,000,000 microseconds (1000 s) with exit 2, and arrival-time arithmetic saturates in the library.
+  3. Two test checks could not fail (a path compared with itself; `x + 0 == 0`). Replaced with real assertions: the nested output directory exists, and the CSV row count equals the number of fills produced.
+- **Doc/code gap closed, not changed:** `cancels_in_flight_filled` is counted once per order when its first cancel arrives. `DESIGN.md` said "in every case", which differs only for duplicate cancels; neither built-in strategy sends them, so numbers are unaffected. The design now says so.
+- **Effect on results:** none. I reran the full 96-cell study and the CSV and tables are byte-identical.
+- **Tests:** 67 C++ tests in both builds (zero warnings), 17 Python tests, including six out-of-range CLI cases.
+- **Evidence:** `projects/04-backtester/src/bt_run.cpp`, `src/latency.cpp`, `src/strategy_schedule.cpp`, `tests/test_latency.cpp`, `tests/test_strategy_mm.cpp`, `python/test_integration.py`.
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
@@ -314,5 +326,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 4 implementation is in progress; add its decisions as D46 onward.
+- Project 4 implementation is in progress; add its decisions as D47 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).

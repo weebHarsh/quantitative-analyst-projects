@@ -80,11 +80,33 @@ int main(int argc, char** argv) {
     }
 
     constexpr std::int64_t kUs = 1000;
-    if (get_int(o, "--latency-us", v, bad)) cfg.latency.entry_ns = cfg.latency.cancel_ns = cfg.latency.ack_ns = v * kUs;
-    if (get_int(o, "--entry-latency-us", v, bad)) cfg.latency.entry_ns = v * kUs;
-    if (get_int(o, "--cancel-latency-us", v, bad)) cfg.latency.cancel_ns = v * kUs;
-    if (get_int(o, "--ack-latency-us", v, bad)) cfg.latency.ack_ns = v * kUs;
-    if (get_int(o, "--latency-jitter-us", v, bad)) cfg.latency.jitter_mean_ns = v * kUs;
+    // 1000 s in microseconds: far beyond any real latency and far below the point where
+    // v * 1000 or adding it to a nanosecond timestamp could overflow int64.
+    constexpr std::int64_t kMaxUs = 1'000'000'000;
+    auto range_msg = [&](const char* opt, std::int64_t lo) {
+        return std::string(opt) + " must be an integer between " + std::to_string(lo) + " and " +
+               std::to_string(kMaxUs) + " microseconds";
+    };
+    if (get_int(o, "--latency-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--latency-us", 0));
+        cfg.latency.entry_ns = cfg.latency.cancel_ns = cfg.latency.ack_ns = v * kUs;
+    }
+    if (get_int(o, "--entry-latency-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--entry-latency-us", 0));
+        cfg.latency.entry_ns = v * kUs;
+    }
+    if (get_int(o, "--cancel-latency-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--cancel-latency-us", 0));
+        cfg.latency.cancel_ns = v * kUs;
+    }
+    if (get_int(o, "--ack-latency-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--ack-latency-us", 0));
+        cfg.latency.ack_ns = v * kUs;
+    }
+    if (get_int(o, "--latency-jitter-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--latency-jitter-us", 0));
+        cfg.latency.jitter_mean_ns = v * kUs;
+    }
     if (get_int(o, "--seed", v, bad)) cfg.latency.seed = static_cast<std::uint64_t>(v);
 
     std::string strategy = "mm";
@@ -97,8 +119,15 @@ int main(int argc, char** argv) {
     if (get_int(o, "--max-inv-lots", v, bad)) mm.max_inv_lots = v;
     if (get_int(o, "--skew-ticks", v, bad)) mm.skew_ticks = v;
     bt::ScheduleParams sp;
-    if (get_int(o, "--schedule-period-us", v, bad)) sp.period_ns = v * kUs;
-    if (get_int(o, "--schedule-life-us", v, bad)) sp.life_ns = v * kUs;
+    if (get_int(o, "--schedule-period-us", v, bad)) {
+        // 0 would re-arm the timer at the same instant forever and exhaust memory.
+        if (v < 1 || v > kMaxUs) return usage(range_msg("--schedule-period-us", 1));
+        sp.period_ns = v * kUs;
+    }
+    if (get_int(o, "--schedule-life-us", v, bad)) {
+        if (v < 0 || v > kMaxUs) return usage(range_msg("--schedule-life-us", 0));
+        sp.life_ns = v * kUs;
+    }
     if (get_int(o, "--quote-qty-lots", v, bad)) sp.qty_lots = v;
     if (bad) return usage("");
     if (mm.quote_qty_lots <= 0 || sp.qty_lots <= 0) return usage("--quote-qty-lots must be positive");

@@ -210,6 +210,11 @@ Then, in every case: if `X.filled_in_cancel_flight_lots > 0`, `cancels_in_flight
 += 1`. That counter therefore counts cancels whose order got at least one fill while the
 cancel was travelling, whether the fill was partial or full.
 
+*As built:* the increment happens once per order, when the order's first cancel arrives, so
+a second cancel for the same order is not counted again. Neither built-in strategy sends
+duplicate cancels, so the two readings give the same numbers in every run here (review
+finding, 2026-11-15).
+
 ### 2.5 Cancels in flight: exact semantics and what the strategy is told
 
 A cancel sent at `ts_c` takes effect only when it arrives at `ta = cancel_arrival(ts_c)`.

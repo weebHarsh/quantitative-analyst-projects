@@ -173,3 +173,26 @@ def test_summary_cross_count_matches_fills_detail(feed, tmp_path):
     kinds = [ln.split(",")[5] for ln in (out / "fills_detail.csv").read_text().splitlines()[1:]]
     s = summary(out)
     assert kinds.count("CROSS") == int(s["fills_cross"]) and len(kinds) == int(s["fills"])
+
+
+# Review regressions: the CLI must reject values that hang or overflow instead of running them.
+@pytest.mark.parametrize("args", [
+    ["--strategy", "schedule", "--schedule-period-us", "0"],
+    ["--strategy", "schedule", "--schedule-period-us", "-5"],
+    ["--latency-us", "10000000000000000"],
+    ["--latency-us", "-1"],
+    ["--entry-latency-us", "1000000001"],
+    ["--latency-jitter-us", "9000000000000000"],
+])
+def test_bt_run_rejects_out_of_range_values_with_usage_error(args, tmp_path):
+    golden = Path(__file__).resolve().parents[2] / "03-market-data" / "tests" / "golden" / "expected_events_A.csv"
+    exe = Path(__file__).resolve().parents[1] / "build" / "bt_run"
+    if not exe.exists():
+        pytest.skip("bt_run is not built (run make test first)")
+    done = subprocess.run([str(exe), "--events", str(golden), "--out", str(tmp_path / "o"), *args],
+                          capture_output=True, text=True, timeout=30)
+    assert done.returncode == 2, (args, done.returncode, done.stderr)
+    # a bare negative number looks like an option flag to the parser, so its message differs;
+    # the exit code is the contract for those cases
+    if not any(a.startswith("-") and a[1:].isdigit() for a in args):
+        assert "microseconds" in done.stderr
