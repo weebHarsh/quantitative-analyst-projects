@@ -25,7 +25,7 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | 7 | A verdict that arrives later | same | [late markouts](late-markouts.md) | `markouts_stream.py`: `MarkoutTracker` |
 | 8 | Alerts that do not flap | same | [hysteresis and cooldown](hysteresis-and-cooldown.md) | `alerts.py`, `engine.py`, `limits.py`, `config/limits.toml` |
 | 9 | Project 3: market-data normalizer | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) (source: `explainers/project-3.html`) [Project 3 README](../../projects/03-market-data/README.md); notes: [order book basics](order-book-basics.md), [gap detection and resync](gap-detection-and-resync.md), [fixed-point prices](fixed-point-prices.md) | `projects/03-market-data/` (`include/md/`, `src/`, `DESIGN.md`) |
-| 10 | Project 4: backtester | explainer pending | notes: [queue position and fill models](queue-position-and-fill-models.md), [latency and cancels in flight](latency-and-cancels-in-flight.md), [optimistic fills inflate backtests](optimistic-fills-inflate-backtests.md) | `projects/04-backtester/` (`include/bt/`, `src/`, `python/sensitivity.py`, `results/`) |
+| 10 | Project 4: backtester | [Project 4 explainer](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC) (source: `explainers/project-4.html`) | notes: [queue position and fill models](queue-position-and-fill-models.md), [latency and cancels in flight](latency-and-cancels-in-flight.md), [optimistic fills inflate backtests](optimistic-fills-inflate-backtests.md) | `projects/04-backtester/` (`include/bt/`, `src/`, `python/sensitivity.py`, `results/`) |
 
 ## Trace map: concept to code, test, decision, commit
 

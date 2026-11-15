@@ -21,4 +21,4 @@ Treating f as something to fit. In the synthetic data non-trade decreases at the
 - `projects/04-backtester/DESIGN.md` sections 3.2 to 3.4.
 
 ## Explainer
-Project 4 explainer: to be published (see docs/learning/README.md)
+[Project 4 explainer](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC)

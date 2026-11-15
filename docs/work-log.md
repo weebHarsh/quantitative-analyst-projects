@@ -31,6 +31,7 @@ What was done, in order, who did it (model tier), and the evidence. Append a row
 | 2026-11-15 | Project 4 core independently reviewed (in progress), Python harness and 96-cell sensitivity study (latency x queue model x cross-fill rule on/off x 3 seeds), cross-fill masking effect found by me and added to the study | next commit | Sonnet (harness), me (found and verified the masking effect) | 11 Python tests; study reruns byte-identical; my ablation matches the harness (seed 7 FIFO_BACK: 2,087 fills, spread capture 5.932) | D45 |
 | 2026-11-15 | Three Project 4 learning notes; numbers, table labels and test names verified by me | next commit | Sonnet (checked by me) | `docs/learning/*.md` | D22, D45 |
 | 2026-11-15 | Project 4 independent review (Opus: no logic defects; 5,000 fuzz iterations) and fixes for three edge cases; study re-run unchanged | next commit | Opus (review), me (fixes) | 67 C++ tests in both builds, 17 Python tests; original repros now exit 2 | D46 |
+| 2026-11-15 | Project 4 explainer (private page, source in repo); two label collisions found on the first look and fixed, checked again | next commit | me | [page](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC) | D22 |
 
 ## Test totals at each milestone
 - After Project 1: 16 tests.

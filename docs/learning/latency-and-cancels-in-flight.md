@@ -23,4 +23,4 @@ Counts come from a synthetic market and do not transfer to a real venue.
 - `projects/04-backtester/DESIGN.md` sections 2.3 to 2.5; `src/backtest.cpp`.
 
 ## Explainer
-Project 4 explainer: to be published (see docs/learning/README.md)
+[Project 4 explainer](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC)

@@ -1,0 +1,274 @@
+<title>Waiting in the Queue</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column of panels. Each panel is headline, large picture, one caption.
+   Anchoring analogy: standing in a queue at the currency booth, where being served depends on who is ahead of you. */
+:root {
+  --bg: #f2f5f7;
+  --surface: #ffffff;
+  --fg: #122229;
+  --muted: #566872;
+  --line: #c4d0d7;
+  --accent: #0a7c76;
+  --accent-soft: #d3ece9;
+  --neg: #c2410c;
+  --neg-soft: #fbe3d6;
+  --warn: #a8660a;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+    --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616; --warn: #f2b84b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+  --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616; --warn: #f2b84b;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-body);
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 720px; margin: 0 auto; display: grid; gap: 44px; }
+h1 { font: 700 2.1rem/1.1 var(--font-display); margin: 0; text-wrap: balance; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+h2 { font: 700 1.45rem/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.plate { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+svg.fig { display: block; width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: 0.97rem; }
+.body { margin: 0; max-width: 62ch; }
+.src { color: var(--muted); font: 500 0.78rem/1.4 var(--font-mono); margin: 0; }
+b.term { font-weight: 600; }
+
+svg text { font-family: var(--font-body); font-size: 20px; fill: var(--fg); }
+svg .m { fill: var(--muted); }
+svg .n { font-family: var(--font-mono); font-weight: 700; }
+svg .s { font-size: 15px; }
+svg .xs { font-size: 13px; }
+svg .big { font-size: 25px; }
+svg .a { fill: var(--accent); }
+svg .r { fill: var(--neg); }
+svg .w { fill: var(--warn); }
+svg .ln { stroke: var(--fg); stroke-width: 2.5; fill: none; }
+svg .ln-m { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+svg .dash { stroke-dasharray: 6 6; }
+svg .box { fill: var(--surface); stroke: var(--fg); stroke-width: 2.5; }
+svg .box-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+svg .box-r { fill: var(--neg-soft); stroke: var(--neg); stroke-width: 2.5; }
+svg .zone-a { fill: var(--accent-soft); }
+svg .zone-r { fill: var(--neg-soft); }
+svg .d-a { fill: var(--accent); }
+svg .d-r { fill: var(--neg); }
+svg .d-w { fill: var(--warn); }
+svg .num { fill: var(--bg); font-family: var(--font-mono); font-weight: 700; font-size: 13px; }
+#ah path { fill: var(--fg); }
+@media (max-width: 480px) { h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; } .plate { padding: 8px; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z"/>
+    </marker>
+  </defs>
+</svg>
+
+<main>
+  <header>
+    <h1>Waiting in the queue</h1>
+    <p class="src">Numbers: 96-cell study, 3 seeds, 1 hour each, synthetic market. Source: projects/04-backtester/results/sensitivity_table.md</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="panel">
+    <h2>A resting order waits in line behind everyone already there.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 240" role="img" aria-label="A queue of 500 lots stands ahead of our 200 lots, and trades serve the line from the front">
+          <rect x="16" y="70" width="76" height="84" class="box-a"/>
+          <text x="54" y="118" text-anchor="middle" class="a">trades</text>
+          <circle cx="146" cy="112" r="18" class="box"/><circle cx="204" cy="112" r="18" class="box"/>
+          <circle cx="262" cy="112" r="18" class="box"/><circle cx="320" cy="112" r="18" class="box"/>
+          <circle cx="378" cy="112" r="18" class="box"/>
+          <circle cx="470" cy="112" r="26" class="box-a"/>
+          <line x1="122" y1="112" x2="98" y2="112" class="ln" marker-end="url(#ah)"/>
+          <line x1="146" y1="64" x2="378" y2="64" class="ln-m"/>
+          <text x="262" y="50" text-anchor="middle">500 lots ahead</text>
+          <text x="470" y="170" text-anchor="middle" class="a">us: 200 lots</text>
+          <text x="300" y="216" text-anchor="middle" class="s m">first come, first served</text>
+        </svg>
+      </div>
+      <figcaption>A trade at our price serves the front of the line first. Our order only fills once the people ahead are gone.</figcaption>
+    </figure>
+    <p class="body">Each circle stands for 100 lots. A simulator has to guess how fast the line moves (queue position).</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="panel">
+    <h2>Three ways to guess when the line reaches us.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 300" role="img" aria-label="Optimistic assumes we are at the front; back of queue needs the 500 lots ahead to trade first; cancel ahead assumes a share of them leave without trading">
+          <text x="20" y="48">optimistic</text>
+          <rect x="170" y="30" width="300" height="26" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 5"/>
+          <text x="320" y="48" text-anchor="middle" class="s m">500 ahead, ignored</text>
+          <rect x="474" y="30" width="116" height="26" class="d-a" fill="var(--accent)"/>
+          <text x="532" y="48" text-anchor="middle" class="s" style="fill:var(--bg)">fills at once</text>
+          <text x="170" y="82" class="s m">assumes we are at the front</text>
+
+          <text x="20" y="148">back of queue</text>
+          <rect x="170" y="130" width="300" height="26" fill="var(--line)"/>
+          <text x="320" y="148" text-anchor="middle" class="s">500 ahead must trade</text>
+          <rect x="474" y="130" width="116" height="26" class="box-a"/>
+          <text x="532" y="148" text-anchor="middle" class="s a">us 200</text>
+          <text x="170" y="182" class="s m">only trades move the line (FIFO_BACK)</text>
+
+          <text x="20" y="248">some give up</text>
+          <rect x="170" y="230" width="225" height="26" fill="var(--line)"/>
+          <rect x="395" y="230" width="75" height="26" fill="none" stroke="var(--neg)" stroke-width="2" stroke-dasharray="5 5"/>
+          <text x="432" y="248" text-anchor="middle" class="xs r">may leave</text>
+          <rect x="474" y="230" width="116" height="26" class="box-a"/>
+          <text x="532" y="248" text-anchor="middle" class="s a">us 200</text>
+          <text x="170" y="282" class="s m">a fraction f of unexplained drops was ahead of us</text>
+        </svg>
+      </div>
+      <figcaption>Example: a 400-lot trade clears 400 of the 500 ahead. A later 150-lot trade then fills us for 50.</figcaption>
+    </figure>
+    <p class="body">The right value of f cannot be learned from this synthetic data, so the study tries several (cancel-ahead).</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="panel">
+    <h2>A cancel takes time to arrive, so the order can still fill.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 320" role="img" aria-label="A trade lands while a cancel is travelling and fills the order; with the cross rule on, cancels that came too late per run grow from 0 at 0 milliseconds to about 244 at 20 milliseconds">
+          <line x1="30" y1="90" x2="570" y2="90" class="ln-m"/>
+          <circle cx="100" cy="90" r="9" class="d-a"/>
+          <circle cx="400" cy="90" r="9" class="d-a"/>
+          <polygon points="250,90 240,64 260,64" class="d-r"/>
+          <text x="100" y="124" text-anchor="middle" class="s">we cancel</text>
+          <text x="250" y="124" text-anchor="middle" class="s r">trade fills us</text>
+          <text x="400" y="124" text-anchor="middle" class="s">cancel arrives</text>
+          <line x1="112" y1="52" x2="388" y2="52" class="ln" marker-end="url(#ah)"/>
+          <text x="250" y="38" text-anchor="middle" class="m">the cancel is travelling</text>
+          <text x="20" y="176" class="m">cancels too late, per run (rule on)</text>
+          <line x1="40" y1="290" x2="570" y2="290" class="ln-m"/>
+          <rect x="120" y="290" width="70" height="0.5" fill="var(--accent)"/>
+          <text x="155" y="280" text-anchor="middle" class="n s">0</text>
+          <rect x="230" y="285" width="70" height="5" fill="var(--accent)"/>
+          <text x="265" y="275" text-anchor="middle" class="n s">10</text>
+          <rect x="340" y="262.5" width="70" height="27.5" fill="var(--accent)"/>
+          <text x="375" y="252" text-anchor="middle" class="n s">56</text>
+          <rect x="450" y="170" width="70" height="120" fill="var(--neg)"/>
+          <text x="485" y="160" text-anchor="middle" class="n s">244</text>
+          <text x="155" y="312" text-anchor="middle" class="s m">0 ms</text>
+          <text x="265" y="312" text-anchor="middle" class="s m">1 ms</text>
+          <text x="375" y="312" text-anchor="middle" class="s m">5 ms</text>
+          <text x="485" y="312" text-anchor="middle" class="s m">20 ms</text>
+        </svg>
+      </div>
+      <figcaption>The slower the link, the more orders fill after we asked to cancel them.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 4 -->
+  <section class="panel">
+    <h2>Optimistic fill assumptions flatter the result.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 296" role="img" aria-label="With the same strategy and feed, the optimistic model shows total profit of plus 9.7 and 12,025 fills, while a back-of-queue model shows minus 11.3 and 1,993 fills">
+          <text x="150" y="30" text-anchor="middle" class="m">total profit and loss</text>
+          <line x1="40" y1="130" x2="260" y2="130" class="ln-m"/>
+          <rect x="80" y="81.5" width="56" height="48.5" fill="var(--accent)"/>
+          <text x="108" y="72" text-anchor="middle" class="n a">+9.7</text>
+          <rect x="164" y="130" width="56" height="56.5" fill="var(--neg)"/>
+          <text x="192" y="208" text-anchor="middle" class="n r">−11.3</text>
+          <text x="108" y="250" text-anchor="middle" class="s">optimistic</text>
+          <text x="192" y="250" text-anchor="middle" class="s">back of</text><text x="192" y="268" text-anchor="middle" class="s">queue</text>
+
+          <text x="450" y="30" text-anchor="middle" class="m">fills per run</text>
+          <line x1="340" y1="230" x2="560" y2="230" class="ln-m"/>
+          <rect x="380" y="72" width="56" height="158" fill="var(--accent)"/>
+          <text x="408" y="62" text-anchor="middle" class="n s a">12,025</text>
+          <rect x="464" y="203.8" width="56" height="26.2" fill="var(--neg)"/>
+          <text x="492" y="195" text-anchor="middle" class="n s r">1,993</text>
+          <text x="408" y="250" text-anchor="middle" class="s">optimistic</text>
+          <text x="492" y="250" text-anchor="middle" class="s">back of</text><text x="492" y="268" text-anchor="middle" class="s">queue</text>
+          <text x="300" y="290" text-anchor="middle" class="s m">same strategy, same feed, 0 ms latency, cross rule off</text>
+        </svg>
+      </div>
+      <figcaption>Only the fill assumption changed. The simulated profit moved by about 21 currency units.</figcaption>
+    </figure>
+    <p class="body">Profit and loss here is in the synthetic market's own units. The direction is the lesson, not the size.</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="panel">
+    <h2>One modelling choice can hide the effect of latency.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 320" role="img" aria-label="With the cross rule on the one-second markout stays near minus 0.19 basis points at every latency; with it off the markout falls from 0.41 to 0.28 as latency rises to 20 milliseconds">
+          <text x="150" y="30" text-anchor="middle">cross rule on</text>
+          <text x="450" y="30" text-anchor="middle">cross rule off</text>
+          <line x1="40" y1="166.4" x2="270" y2="166.4" class="ln-m dash"/>
+          <line x1="340" y1="166.4" x2="570" y2="166.4" class="ln-m dash"/>
+          <text x="38" y="160" text-anchor="end" class="xs m">0</text>
+          <polyline points="60,206.7 120,206.7 180,206.9 240,208" class="ln" stroke="var(--neg)"/>
+          <polyline points="360,79.4 420,80.3 480,87.1 540,106.6" class="ln" stroke="var(--accent)"/>
+          <circle cx="60" cy="206.7" r="5" class="d-r"/><circle cx="120" cy="206.7" r="5" class="d-r"/>
+          <circle cx="180" cy="206.9" r="5" class="d-r"/><circle cx="240" cy="208" r="5" class="d-r"/>
+          <circle cx="360" cy="79.4" r="5" class="d-a"/><circle cx="420" cy="80.3" r="5" class="d-a"/>
+          <circle cx="480" cy="87.1" r="5" class="d-a"/><circle cx="540" cy="106.6" r="5" class="d-a"/>
+          <text x="150" y="236" text-anchor="middle" class="n s r">−0.19</text>
+          <text x="360" y="64" text-anchor="middle" class="n s a">+0.41</text>
+          <text x="540" y="132" text-anchor="middle" class="n s a">+0.28</text>
+          <g class="s m">
+            <text x="60" y="262" text-anchor="middle">0</text><text x="120" y="262" text-anchor="middle">1</text>
+            <text x="180" y="262" text-anchor="middle">5</text><text x="240" y="262" text-anchor="middle">20</text>
+            <text x="360" y="262" text-anchor="middle">0</text><text x="420" y="262" text-anchor="middle">1</text>
+            <text x="480" y="262" text-anchor="middle">5</text><text x="540" y="262" text-anchor="middle">20</text>
+          </g>
+          <text x="150" y="288" text-anchor="middle" class="s m">latency (ms)</text>
+          <text x="450" y="288" text-anchor="middle" class="s m">latency (ms)</text>
+          <text x="300" y="312" text-anchor="middle" class="xs m">one-second markout in bps, back-of-queue model, mean of 3 seeds</text>
+        </svg>
+      </div>
+      <figcaption>With the rule on, the line looks flat. Switch it off and the damage from slower links appears.</figcaption>
+    </figure>
+    <p class="body">The cross rule fills an order when the market moves onto it, ignoring its place in line. About 76% of back-of-queue fills came from it, so it drowned out latency. We report both settings.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="panel">
+    <h2>A backtest is not live profit.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 220" role="img" aria-label="A simulator is separated from a real venue by real queues, other traders reacting and real delays">
+          <rect x="16" y="70" width="150" height="80" class="box-a"/>
+          <text x="91" y="116" text-anchor="middle" class="a">simulator</text>
+          <rect x="434" y="70" width="150" height="80" class="box"/>
+          <text x="509" y="116" text-anchor="middle">real venue</text>
+          <line x1="170" y1="110" x2="430" y2="110" class="ln dash" marker-end="url(#ah)"/>
+          <text x="300" y="74" text-anchor="middle" class="s">real queues</text>
+          <text x="300" y="150" text-anchor="middle" class="s">other traders react</text>
+          <text x="300" y="176" text-anchor="middle" class="s">real delays</text>
+        </svg>
+      </div>
+      <figcaption>The gap between the two is where backtests mislead.</figcaption>
+    </figure>
+    <p class="body">This market is synthetic. The code is checked (67 C++ and 17 Python tests, 5,000 fuzz runs with no logic flaws), but the numbers show a method, not an edge. Firms hiring for live trading ask for a live record.</p>
+  </section>
+</main>

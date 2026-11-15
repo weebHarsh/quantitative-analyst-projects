@@ -23,4 +23,4 @@ Reading the default result as the truth, or calling it live edge. These numbers 
 - `cross_fills` in `projects/04-backtester/include/bt/backtest.hpp`; DESIGN.md sections 3.5 and 7.
 
 ## Explainer
-Project 4 explainer: to be published (see docs/learning/README.md)
+[Project 4 explainer](https://claude.ai/artifact/6Tq5k8xBN7VtWiVUoMJMZC)
