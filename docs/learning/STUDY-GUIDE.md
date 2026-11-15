@@ -24,7 +24,7 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | 6 | Live numbers equal end-of-day numbers | same | [incremental vs batch](incremental-vs-batch.md) | `state.py`: `MonitorState`; `replay.py` |
 | 7 | A verdict that arrives later | same | [late markouts](late-markouts.md) | `markouts_stream.py`: `MarkoutTracker` |
 | 8 | Alerts that do not flap | same | [hysteresis and cooldown](hysteresis-and-cooldown.md) | `alerts.py`, `engine.py`, `limits.py`, `config/limits.toml` |
-| 9 | Project 3: market-data normalizer | pending | pending | `projects/03-market-data/` (in progress) |
+| 9 | Project 3: market-data normalizer | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) (source: `explainers/project-3.html`) | [Project 3 README](../../projects/03-market-data/README.md) (being written) | `projects/03-market-data/` (`include/md/`, `src/`, `DESIGN.md`) |
 | 10 | Project 4: backtester | pending | pending | `projects/04-backtester/` (planned) |
 
 ## Trace map: concept to code, test, decision, commit
@@ -43,6 +43,11 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | Cooldown policy (changed after review) | `rmon/alerts.py` | `tests/test_review_regressions.py` | D14b | `0867c1b` |
 | Calibrated limits | `config/limits.toml` | `tests/test_scenario_demo.py` | D15 | `96af4c2` |
 | Bad-session scenario | `rmon/scenarios.py` | `tests/test_scenario_demo.py` | D16 | `96af4c2` |
+| Fixed-point prices and quantities | `include/md/fixed.hpp`, `src/fixed.cpp` | `tests/test_fixed.cpp` | D33 | `fad9aca`, `6a14fbc` |
+| Gap detection and resync | `include/md/session.hpp`, `src/session.cpp` (DESIGN section 6) | `tests/test_session.cpp`, `tests/test_golden.cpp` | D30 | `6a14fbc` |
+| L2 book invariants | `include/md/book.hpp` | `tests/test_book.cpp` | D30, D34 | `6a14fbc` |
+| Cross-venue merge, export to Project 1 | `src/merge.cpp`, `src/export.cpp` | `tests/test_merge.cpp`, `tests/test_export.cpp`, `python/test_pta_integration.py` | D31, D32 | `8f9ee06` |
+| Benchmark method | `bench/run_bench.sh`, `src/bench.cpp` | `make bench` | D35 | `8f9ee06` |
 | Config validation | `rmon/limits.py` | `tests/test_config.py` | D17 | `96af4c2`, `0867c1b` |
 | Live dashboard, localhost only | `rmon/server.py`, `ui/index.html` | `tests/test_server.py` | D09, D20 | `0867c1b` |
 
