@@ -292,6 +292,13 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Study design and hash:** 4 latencies x 4 queue models x 3 seeds, 1 hour each, budget at most 10 minutes; the run fingerprint is FNV-1a 64 over the bytes of `fills.csv`.
 - **Status:** Active.
 
+### D44. Project 4 core: how it was built and what was verified (2026-11-15)
+- **Decision:** Project 3 is pulled in with `add_subdirectory(../03-market-data ... EXCLUDE_FROM_ALL)` so Project 3's own build and tests are untouched; the sanitizer build directory is `build-san/` (the design said `build-asan`). The design's statement that Project 3 was not implemented was corrected.
+- **Evidence (rerun by me from a clean state):** 66 tests, 13,837 checks, in both the normal and the ASan+UBSan builds, zero warnings; Project 3's 85 tests still pass. On a freshly generated 0.25 h feed (seed 7): `fills.csv` is byte-identical across two runs (hash `3e93c91016a904b8`), `market.csv` is byte-identical to `mdtool export --venue A`, and Project 1 loads, validates and analyses the fills (2,663 fills). Fill counts by model at 1 ms latency on that feed: optimistic 4,890, cancel-ahead(0.5) 2,663, back-of-queue 2,533.
+- **Not covered by tests yet:** the CLI exit codes (checked by hand) and a generated-feed integration test; both belong to the Python pass.
+- **Cosmetic issue left open:** some fee values in `fills.csv` print with 17 significant digits (for example `0.00020000000000000001`). They parse correctly; formatting can be tightened in the Python pass.
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
@@ -299,5 +306,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 4 implementation is in progress; add its decisions as D44 onward.
+- Project 4 implementation is in progress; add its decisions as D45 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).

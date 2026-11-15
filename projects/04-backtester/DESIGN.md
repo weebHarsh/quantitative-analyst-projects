@@ -971,7 +971,7 @@ stdout: nothing. stderr: one line,
 ```make
 PY    ?= python3
 BUILD ?= build
-ASAN  ?= build-asan
+ASAN  ?= build-san
 export PYTHONPATH := $(CURDIR)/../01-post-trade-analytics/src:$(CURDIR)/../02-risk-monitor/src:$(PYTHONPATH)
 
 build:
@@ -1189,12 +1189,10 @@ The Release build with `BT_WERROR=ON` has zero warnings, and `make test-sanitize
 ## 10. Risks, open questions, and what to know about Project 3
 
 **Project 3 facts the implementer must rely on:**
-1. **Project 3 is designed but not yet implemented.** Its directory holds only
-   `DESIGN.md`, `tools/gen_feeds.py`, `python/test_gen_feeds.py` and `tests/golden/`.
-   Project 4 needs `mdlib` (Book, VenueSession, Merger, QuoteExporter, fixed formatting)
-   and `mdtool normalize/export`.
-   - **Build Project 3 first.** Its API in its DESIGN section 11 is binding, so Project 4
-     can be coded against those signatures in parallel.
+1. **Project 3 is implemented** (when this design was written it was not). Project 4 uses
+   its `mdlib` (Book, VenueSession, Merger, QuoteExporter, fixed formatting) and
+   `mdtool normalize/export`, pulled in with `add_subdirectory(../03-market-data ... EXCLUDE_FROM_ALL)`.
+   - Project 3's API in its DESIGN section 11 is binding.
    - If Project 3's CMake target names or options (`mdlib`, `mdtool`, `MD_WERROR`,
      `MD_SANITIZE`) change, update 8.2.
 2. **Trades never change the book.** The book effect arrives as the very next venue A
