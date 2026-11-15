@@ -210,7 +210,7 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 
 ### D31. Export to Project 1: 2-decimal bid/ask, 3-decimal mid (2026-11-15)
 - **Decision:** The export writes `ts_us,bid,ask,mid`; a half-tick mid cannot be written exactly in 2 decimals, so mid has 3. Rows appear only when both sides exist and the merged book is not stale; locked merged quotes are filtered; timestamps are strictly increasing.
-- **Why:** Project 1's loader needs a strictly increasing schema. Locked merged quotes occur legitimately because Venue B lags Venue A (1,100 in 15 minutes).
+- **Why:** Project 1's loader needs a strictly increasing schema. Locked merged quotes occur legitimately because Venue B lags Venue A (1,017 on the seed-7, 15-minute faulted feed, re-measured by me on 2026-11-15; the design agent reported about 1,100 on its own run).
 - **Evidence:** `DESIGN.md` section 9; Project 1's `analyze` ran on the reference export.
 - **Status:** Active.
 
@@ -227,7 +227,8 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 ### D34. Project 3 implementation choices beyond the spec (2026-11-15)
 - **Decision:** (a) Build with `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Werror`, stricter than the roadmap's `-Wall -Wextra`. (b) Zero-quantity snapshot levels in Venue A, and `D` with a nonzero size or `N`/`C`/`SL` with a zero size in Venue B, are parse errors (counted, never a crash). (c) `mdtool` exit codes: 2 usage, 3 I/O, 4 parse errors, 5 checkpoint mismatch, with 5 taking priority over 4. (d) `Book::set_level` with quantity 0 removes the level without an assert, because the sanitizer build is a Debug build and an assert would abort.
 - **Why:** The spec left these open; making them strict surfaces bad input instead of hiding it.
-- **Evidence:** `projects/03-market-data/src/`, `tests/` (51 tests, 21,758 checks; both the normal and the ASan+UBSan builds pass with zero warnings, rerun by me from a clean state).
+- **Known design mismatch:** `DESIGN.md` section 12 names `python/test_cpp_integration.py`; the integration test that exists is `python/test_pta_integration.py` (it runs `mdtool export` and loads the result with Project 1).
+- **Evidence:** `projects/03-market-data/src/`, `tests/` (at pass 1: 51 tests, 21,758 checks; after pass 2 the suite is 76 tests; both the normal and the ASan+UBSan builds pass with zero warnings, rerun by me from a clean state).
 - **Status:** Active.
 
 ### D35. Benchmark method and how to read it (2026-11-15)
