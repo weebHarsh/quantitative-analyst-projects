@@ -239,6 +239,45 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Evidence:** `projects/03-market-data/bench/run_bench.sh`, `src/bench.cpp`.
 - **Status:** Active.
 
+## Project 4: backtester
+
+### D36. Reuse Project 3's book code; one normalised-events file between them (2026-11-15)
+- **Decision:** Project 4 links Project 3's book, session and export code and reads the normalised-events CSV that `mdtool normalize` already writes (Venue A). Its `market.csv` must be byte-identical to `mdtool export --venue A`, checked by an integration test.
+- **Why:** One book implementation to trust, and Project 3 needs no change.
+- **Evidence:** `projects/04-backtester/DESIGN.md` sections 1 and 10.
+- **Status:** Active.
+
+### D37. Deterministic event ordering; orders and cancels share one channel (2026-11-15)
+- **Decision:** At equal timestamps market events go first, then exchange arrivals, then reports, then timers. Orders and cancels travel on one first-in-first-out channel, so a cancel can never overtake the order it cancels.
+- **Evidence:** `DESIGN.md` section 2.
+- **Status:** Active.
+
+### D38. One latency value; optional seeded jitter (2026-11-15)
+- **Decision:** A single latency L applies to order entry, cancel, and each ack direction. The only randomness is optional jitter from a seeded generator, so a run is reproducible.
+- **Why:** One knob keeps the sensitivity study readable; separate entry and cancel latencies can be added later.
+- **Status:** Active.
+
+### D39. Three queue models as pure functions in integer lots (2026-11-15)
+- **Decision:** OPTIMISTIC (fills whenever the market trades at or through our price), FIFO_BACK (join the back of the displayed queue; only trades at that price advance it) and FIFO_CANCEL_AHEAD with fraction f (a share f of unexplained displayed-size drops counts as ahead of us). Queue ahead is capped at the displayed size, which is forced arithmetic and not an assumption. With f = 0 the cancel-ahead model equals FIFO_BACK.
+- **Evidence:** `DESIGN.md` section 3.
+- **Status:** Active.
+
+### D40. Post-only orders; one fill when the market moves onto a resting order (2026-11-15)
+- **Decision:** An order that would cross on arrival is rejected. If the market later moves onto a resting order it fills once at our price; a switch turns that off for an ablation.
+- **Why:** Keeps the strategy a passive market maker and makes the optimistic assumption explicit and removable.
+- **Status:** Active.
+
+### D41. What may be asserted about the model ordering (2026-11-15)
+- **Decision:** OPTIMISTIC >= CANCEL_AHEAD(0.5) >= CANCEL_AHEAD(0.25) >= FIFO_BACK fills is proven only for a fill-independent order schedule, so tests assert it per order for such a schedule. For the market maker, where fills change later orders, it is reported and not asserted.
+- **Why:** An assertion that can fail for legitimate reasons would be a flaky test or a false claim.
+- **Status:** Active.
+
+### D42. Limits the synthetic feed puts on the study (2026-11-15)
+- **Findings (from the design agent, seed 7, 0.25 h):** all 3,198 of 3,198 trades are immediately followed by an exact one-level reduction, so trades and cancels are perfectly separable. This is a property of the generator, not of real feeds. Non-trade decreases at the touch (about 7.6k) outnumber trades (about 3.2k), so the cancel-ahead fraction f cannot be identified from the data. Touch moves delete and re-add levels in one message, about 5.8 per second.
+- **Consequence:** The sensitivity study can show direction and rough size of the effect of queue assumptions in this simulator. It cannot say what f is, and its magnitudes do not transfer to a real venue. The write-up must say so.
+- **Study design and hash:** 4 latencies x 4 queue models x 3 seeds, 1 hour each, budget at most 10 minutes; the run fingerprint is FNV-1a 64 over the bytes of `fills.csv`.
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
@@ -246,5 +285,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 3 C++ implementation and Project 4 are being built; add their decisions as D34 onward.
+- Project 4 implementation is in progress; add its decisions as D43 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).
