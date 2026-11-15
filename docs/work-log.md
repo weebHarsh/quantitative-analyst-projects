@@ -35,10 +35,17 @@ What was done, in order, who did it (model tier), and the evidence. Append a row
 | 2026-11-15 | Project 4 README (headline numbers and seed ranges checked against the results table; quickstart including `pta report` and `rmon run` run end to end; exit codes checked against the code) | next commit | Haiku (checked by me) | `projects/04-backtester/README.md` | D45, D46 |
 | 2026-11-15 | Résumé template, interview walkthroughs and filled application bullets (numbers checked against the sources); measured the C++ kernel speed and found it slower, so every speedup claim was removed | next commit | Sonnet (checked by me) | `docs/resume.md`, `docs/walkthroughs.md`, `docs/applications.md` | D47 |
 
-## Test totals at each milestone
-- After Project 1: 16 tests.
-- After Project 2: 16 + 123.
-- Reproduce: `make test-all`.
+## Test totals (all rerun by me from a clean state on 2026-11-15)
+| Project | C++ tests | Python tests |
+|---|---|---|
+| 1 Post-trade analytics | kernel parity test inside the Python suite | 16 |
+| 2 Risk monitor | none | 123 |
+| 3 Market-data normalizer | 85 (normal and ASan+UBSan builds, `-Werror`) | 32 |
+| 4 Backtester | 67 (normal and ASan+UBSan builds, `-Werror`) | 17 |
+| **Total** | **152** | **188** |
+
+- Reproduce: `make test-all` (Projects 1-4 C++ and Projects 1-2 Python), plus `python3 -m pytest -q python` in `projects/03-market-data` and `projects/04-backtester`.
+- `make test-all` takes about 40 seconds from a clean build.
 
 ## How to trace anything
 1. Find the concept in [learning/STUDY-GUIDE.md](learning/STUDY-GUIDE.md); it points to the code, tests, decision and commit.
