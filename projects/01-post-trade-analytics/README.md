@@ -120,7 +120,8 @@ out/                              generated outputs from `pta simulate`
 - **No queue position or latency.** Fill generation does not model the order book queue or message delays.
 - **Fills are assumed to be stamped on market timestamps.** The inventory identity used in the tests (`inventory_pnl_on_grid`) holds only under that assumption.
 - **Real quotes are not yet tested.** The `market_from_quotes` path has not been checked against any vendor file layout.
-- **Project 2 will consume these outputs** (the fills, market and attribution outputs written by this project).
+- **The C++ kernel is a cross-check, not an optimisation.** measured 2026-11-15 on a 6-hour synthetic session (15,895 fills, 216,000 quotes), median of 7: about 123 ms for the C++ command-line kernel, which includes reading both CSV files, against about 11 ms for the in-memory vectorised Python. Its value is a second implementation that must agree to 1e-9 (D47).
+- **Project 2 consumes these outputs** (built; see `../02-risk-monitor`).
 
 ## Map to the Graviton Quant Analyst job description
 

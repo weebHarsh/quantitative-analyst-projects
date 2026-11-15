@@ -319,6 +319,14 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Evidence:** `projects/04-backtester/src/bt_run.cpp`, `src/latency.cpp`, `src/strategy_schedule.cpp`, `tests/test_latency.cpp`, `tests/test_strategy_mm.cpp`, `python/test_integration.py`.
 - **Status:** Active.
 
+### D47. The C++ markout kernel is a cross-check, not an optimisation (2026-11-15)
+- **What happened:** The week-16 résumé template had an "[X]x faster" placeholder for the Project 1 C++ kernel, because no measurement existed. I measured it before letting anyone fill it in.
+- **Measurement (6-hour synthetic session, 15,895 fills, 216,000 quotes, median of 7, `-O2`):** about 123 ms for the C++ command-line kernel (including reading both CSV files) against about 11 ms for the in-memory vectorised Python (attribution plus six horizons). The kernel is about ten times slower end to end, because CSV parsing dominates while numpy does the lookups in memory.
+- **Decision:** Never claim a speedup. Describe the kernel as an independent second implementation that must agree with the Python to 1e-9, which is its real value (it catches errors in either). Corrected in `docs/resume.md`, `docs/applications.md`, `docs/walkthroughs.md` and the Project 1 README.
+- **Limit of the measurement:** it compares the whole process with the in-memory Python; it does not time the C++ compute alone. That would need an in-process benchmark.
+- **Lesson:** an unmeasured performance claim on a résumé is an interview question that ends badly.
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
@@ -326,5 +334,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 4 implementation is in progress; add its decisions as D47 onward.
+- Project 4 implementation is in progress; add its decisions as D48 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).

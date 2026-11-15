@@ -41,25 +41,25 @@ Real numbers from `examples/sample_report.md` (simulated 6-hour session, 15,895 
 - Built a post-trade analytics pipeline in Python that decomposes PnL into spread capture (+188.94), inventory (-151.95) and fees (-31.58), reconciling to total PnL of +5.42 on a simulated 15,895-fill session; identity enforced by a unit test against an independently computed equity curve.
 - Computed quantity-weighted markouts from 0s to 60s horizons (0s: +0.598 bps decaying to +0.021 bps at 60s) to separate captured spread from adverse selection.
 - Reported risk metrics (max drawdown 31.27, VaR/ES at 95% and 99%) and flagged a Sharpe of 2.62 as not significant (t-stat 0.16); 16 tests, synthetic data, no claim of edge.
-- Wrote a C++17 markout kernel with a Python parity test (agreement to 1e-9), [X]x faster than the Python version on [N] fills. <!-- speedup NOT measured anywhere in the repo: fill [X] and [N] only after timing it, else delete the clause -->
+- Wrote a C++17 markout kernel as an independent second implementation that agrees with the Python version to 1e-9; it is a cross-check, not an optimisation (it is slower end to end: about 123 ms against 11 ms in Python on 15,895 fills, dominated by CSV parsing; see D47). <!-- timing: docs/decision-log.md D47 -->
 
 <!-- sources: examples/sample_report.md and projects/01-post-trade-analytics/README.md (attribution, markouts, risk numbers); docs/work-log.md (16 tests); docs/roadmap.md section 3 (parity to 1e-9) -->
 
-### Project 2 (planned): Real-time risk and strategy monitoring dashboard
+### Project 2 (built): Real-time risk and strategy monitoring dashboard
 - Built a real-time monitor in Python (standard-library web dashboard) tracking PnL by component, inventory, drawdown, fill rate and markouts, with incremental O(1)-per-event state that matches Project 1's batch numbers on all 72,000 equity ticks of an independent check on a fresh seed.
 - Implemented 4 alert rules (position, loss from peak, fill rate, markout degradation) with hysteresis and cooldown; on a simulated 5-phase injected bad session they raised 9 alerts in the expected order, and a clean session raised none (thresholds calibrated to the synthetic simulator only).
 - 123 tests; independent review found 5 alert-layer bugs, all fixed with regression tests; full engine processed about 110,000 events/s on a 6-hour synthetic session; one command (`rmon serve --scenario bad --speed 600`).
 
 <!-- sources: projects/02-risk-monitor/README.md "How it was checked" and "What the demo shows"; docs/decision-log.md D10, D14b, D16, D17, D26 -->
 
-### Project 3 (planned): Multi-exchange market-data normaliser and order-book rebuild (C++)
+### Project 3 (built): Multi-exchange market-data normaliser and order-book rebuild (C++)
 - Built a C++17 normaliser for 2 synthetic venue feed formats (JSON-lines diffs and chained-id CSV) into one fixed-point schema (int64 ticks and lots, no floating point), rebuilding L2 books at 2.02 million events/s end to end (p50 71 ns, p99 158 ns per update) on one shared machine; benchmark reproducible with `make bench`.
 - Detected sequence gaps, duplicates and out-of-order messages and resynced from snapshots; on a 15-minute faulted feed the rebuilt book equalled the venue checkpoints (0 mismatches) and each venue showed gaps=2, resyncs=3. Exported quotes that Project 1 analyses.
 - 85 C++ tests pass in normal and ASan+UBSan builds with -Werror and zero warnings; an independent review found 3 defects (merge ordering, benchmark counters, signed overflow), all fixed with regression tests. Feeds are synthetic; no real venue was tested.
 
 <!-- sources: projects/03-market-data/README.md "Results"; docs/decision-log.md D30, D34, D35, D43. Per-update latency includes about 28 ns timer cost; throughput varied about 30 percent between runs. -->
 
-### Project 4 (planned): Event-driven market-making backtester
+### Project 4 (built): Event-driven market-making backtester
 - Built a deterministic event-driven backtester in C++17 simulating a passive market maker with order latency, cancels in flight and 3 queue-position models, driven by Project 3's book on a synthetic feed (3 seeds x 1 hour); same inputs give byte-identical fills.
 - Ran a 96-cell sensitivity study (4 latencies x 4 queue models x cross-fill rule on/off x 3 seeds): the optimistic fill model produced about 2.0x the fills of the back-of-queue model with the cross-fill rule on and about 6.0x with it off (at 0 ms latency), and a total PnL gap of about +21 currency units over FIFO_BACK in both settings (synthetic, not live PnL).
 - Found that the default cross-fill rule created about 76% of FIFO_BACK's fills and masked the latency effect (1 s markout +0.406 bps at 0 ms falling to +0.279 bps at 20 ms only with the rule off); reported both settings. 67 C++ tests in normal and sanitizer builds, 17 Python tests; independent review found 3 edge-case defects, all fixed.

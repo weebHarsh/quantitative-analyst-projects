@@ -16,8 +16,8 @@ Fill every [PLACEHOLDER]. Nothing in square brackets is known to this repo. Ever
 **Post-trade analytics engine** (Python, C++17) - [GITHUB LINK]
 - Built a PnL attribution (spread capture +188.94, inventory -151.95, fees -31.58) that reconciles to total PnL of +5.42 on a simulated 15,895-fill session, checked against an independent equity curve; 16 tests.
 - Computed quantity-weighted markouts (+0.598 bps at 0 s decaying to +0.021 bps at 60 s) and flagged an annualised Sharpe of 2.62 as not significant (t-statistic 0.16): the tooling is the result, not an edge.
-- Wrote a C++17 markout kernel with a Python parity test (1e-9); [X]x speedup on [N] fills not yet measured.
-<!-- source: projects/01-post-trade-analytics/examples/sample_report.md and README.md; docs/work-log.md (16 tests); docs/roadmap.md section 3 (1e-9). Speedup: no measurement exists in the repo. -->
+- Wrote a C++17 markout kernel as an independent second implementation that agrees with the Python version to 1e-9 (parity test); it is a cross-check, not an optimisation: end to end it is slower than the vectorised Python (about 123 ms against 11 ms on 15,895 fills and 216,000 quotes, dominated by CSV parsing).
+<!-- source: projects/01-post-trade-analytics/examples/sample_report.md and README.md; docs/work-log.md (16 tests); docs/roadmap.md section 3 (1e-9). Kernel timing: docs/decision-log.md D47. -->
 
 **Real-time risk and strategy monitor** (Python) - [GITHUB LINK]
 - Built incremental O(1)-per-event PnL, drawdown and markout state that matches the Project 1 batch numbers on all 72,000 equity ticks of an independent check on a fresh seed.
@@ -33,7 +33,7 @@ Fill every [PLACEHOLDER]. Nothing in square brackets is known to this repo. Ever
 
 **Event-driven market-making backtester** (C++17, Python) - [GITHUB LINK]
 - Built a deterministic backtester with order latency, cancels in flight and three queue-position models; ran a 96-cell study (4 latencies x 4 queue models x cross-fill rule on/off x 3 seeds).
-- Showed optimistic fills inflate results: about 2.0x the fills of the back-of-queue model with the cross-fill rule on, about 6.0x with it off, and about +21 currency units of PnL over it in both settings (synthetic; not live PnL).
+- Showed optimistic fills inflate results: about 2.0x the fills of the back-of-queue model with the cross-fill rule on, about 6.0x with it off, and about +21 to +22 currency units of PnL over it in both settings (synthetic; not live PnL).
 - Found the cross-fill rule created about 76% of back-of-queue fills and masked the latency effect (1 s markout +0.406 bps at 0 ms, +0.279 bps at 20 ms with it off); 67 C++ tests, 17 Python tests; review defects fixed.
 <!-- source: projects/04-backtester/results/sensitivity_table.md (1.4, 1.5, 1.7, 2.3, 2.7); docs/decision-log.md D45, D46 -->
 
@@ -60,7 +60,7 @@ C++17, Python, CMake, AddressSanitizer / UBSan, unit and regression testing (gol
 - [ ] Every [PLACEHOLDER] is filled or its line is deleted. Nothing about your employer, degree or dates is in this repo.
 - [ ] Re-run `make test-all` on a fresh clone; confirm the test counts (16, 123, 85, 67 C++ + 17 Python) still hold.
 - [ ] Re-run `make bench` on your machine; replace the 2.02 million events/s and 71/158 ns figures with your own if they differ.
-- [ ] Delete the C++ speedup clause unless you have timed it; do not guess [X] and [N].
+- [ ] Do not claim the C++ kernel is faster: it was timed and it is not (D47). Keep the sentence about it being a cross-check.
 - [ ] Every bullet still says synthetic. Do not describe any result as real, live or a trading edge (roadmap rule 6).
 - [ ] Read the live Graviton job description; the wording used in this repo is secondhand (docs/firm-landscape.md).
 - [ ] Everything fits one page; remove the source comments and this checklist.
