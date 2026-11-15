@@ -25,7 +25,7 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | 7 | A verdict that arrives later | same | [late markouts](late-markouts.md) | `markouts_stream.py`: `MarkoutTracker` |
 | 8 | Alerts that do not flap | same | [hysteresis and cooldown](hysteresis-and-cooldown.md) | `alerts.py`, `engine.py`, `limits.py`, `config/limits.toml` |
 | 9 | Project 3: market-data normalizer | [Project 3 explainer](https://claude.ai/artifact/FveVf5qjA11cXmogARD5jV) (source: `explainers/project-3.html`) [Project 3 README](../../projects/03-market-data/README.md); notes: [order book basics](order-book-basics.md), [gap detection and resync](gap-detection-and-resync.md), [fixed-point prices](fixed-point-prices.md) | `projects/03-market-data/` (`include/md/`, `src/`, `DESIGN.md`) |
-| 10 | Project 4: backtester | pending | pending | `projects/04-backtester/` (planned) |
+| 10 | Project 4: backtester | explainer pending | notes: [queue position and fill models](queue-position-and-fill-models.md), [latency and cancels in flight](latency-and-cancels-in-flight.md), [optimistic fills inflate backtests](optimistic-fills-inflate-backtests.md) | `projects/04-backtester/` (`include/bt/`, `src/`, `python/sensitivity.py`, `results/`) |
 
 ## Trace map: concept to code, test, decision, commit
 
@@ -48,6 +48,10 @@ Everything here uses synthetic data. It teaches the method; none of it is eviden
 | L2 book invariants | `include/md/book.hpp` | `tests/test_book.cpp` | D30, D34 | `6a14fbc` |
 | Cross-venue merge, export to Project 1 | `src/merge.cpp`, `src/export.cpp` | `tests/test_merge.cpp`, `tests/test_export.cpp`, `python/test_pta_integration.py` | D31, D32 | `8f9ee06` |
 | Benchmark method | `bench/run_bench.sh`, `src/bench.cpp` | `make bench` | D35 | `8f9ee06` |
+| Queue models (OPTIMISTIC, FIFO_BACK, FIFO_CANCEL_AHEAD) | `include/bt/queue.hpp`, `src/queue.cpp` | `tests/test_queue.cpp`, `tests/test_exchange.cpp` | D39, D41 | `6944af0` |
+| Latency, cancels in flight, post-only | `include/bt/latency.hpp`, `src/backtest.cpp` | `tests/test_exchange.cpp` | D37, D38, D40 | `6944af0` |
+| Deterministic run and fill hash | `src/output.cpp`, `src/bt_run.cpp` | `python/test_integration.py` | D42, D44 | `6944af0`, `c51b3db` |
+| Sensitivity study and the cross-fill masking effect | `python/sensitivity.py`, `results/` | `python/test_integration.py` (reruns byte-identical) | D45 | `fa2dee4` |
 | Config validation | `rmon/limits.py` | `tests/test_config.py` | D17 | `96af4c2`, `0867c1b` |
 | Live dashboard, localhost only | `rmon/server.py`, `ui/index.html` | `tests/test_server.py` | D09, D20 | `0867c1b` |
 
