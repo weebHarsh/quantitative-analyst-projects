@@ -38,8 +38,8 @@ The scores are judgement calls, not measurements. The weights matter more than t
 |---|---|---|---|
 | 1-5 | P1 Post-trade analytics engine (**built**) | Python + small C++ kernel | - |
 | 6-8 | P2 Risk & strategy monitoring dashboard (**built**) | Python | P1 outputs (fills, attribution, risk) |
-| 9-12 | P3 Market-data normalizer + order-book rebuild | C++17 | P1's quote/fill schema |
-| 13-15 | P4 Market-making backtester (latency, queues) | C++ core, Python analysis | P3 books, P1 analytics |
+| 9-12 | P3 Market-data normalizer + order-book rebuild (**built**) | C++17 | P1's quote/fill schema |
+| 13-15 | P4 Market-making backtester (latency, queues) (**built**) | C++ core, Python analysis | P3 books, P1 analytics |
 | 16 | Polish, write-ups, applications | - | all |
 | any | P5 OFI alpha study (stretch, only if ahead) | Python | P3 data, P1 markouts |
 
@@ -96,6 +96,8 @@ Code: [`projects/01-post-trade-analytics`](../projects/01-post-trade-analytics).
 
 ## 5. Project 3: Multi-exchange market-data normalizer + order-book rebuild in C++ (weeks 9-12)
 
+**Status: built** in [`projects/03-market-data`](../projects/03-market-data). All five exit criteria are covered by tests or a command: checkpoint equality, injected gaps detected and recovered, `make bench` reproduces the figures, Project 1 loads and analyses the export, and a clean build with `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror` (stricter than asked) plus an ASan+UBSan build. The feeds are synthetic and the two venue formats are modelled, not real (no venue host was reachable). An independent review found three edge-case defects, all fixed (D43).
+
 **Goal.** Take raw feeds from two or more venues (public crypto feeds are the realistic free source), normalise them into one event schema, and rebuild L2 books.
 
 | Week | Milestone |
@@ -113,6 +115,8 @@ Code: [`projects/01-post-trade-analytics`](../projects/01-post-trade-analytics).
 - Builds with CMake on Linux with `-Wall -Wextra` and no warnings.
 
 ## 6. Project 4: Event-driven market-making backtester (weeks 13-15)
+
+**Status: built** in [`projects/04-backtester`](../projects/04-backtester). Exit criteria met: deterministic replays (byte-identical fills and hash), unit tests for queue advancement and cancels in flight, a sensitivity table and charts (96 cells), and the not-live-PnL statement. Finding to read first: the default cross-fill rule hides the latency effect, so the study reports it both on and off (D45). An independent review found no logic defects and three edge cases, fixed (D46).
 
 **Goal.** Replace P1's toy fill model with an event-driven simulator that has order latency and queue position, then show how much those assumptions change PnL.
 

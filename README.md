@@ -14,8 +14,8 @@ rather than a generic "predict the stock price" notebook.
 |---|---|---|---|
 | 1 | [Post-trade analytics engine](projects/01-post-trade-analytics) | Built | PnL attribution, markouts, risk stats, C++ kernel with a Python parity test |
 | 2 | [Risk and strategy monitor](projects/02-risk-monitor) | Built | Incremental PnL that matches Project 1, four alert rules with hysteresis, live web dashboard |
-| 3 | Multi-exchange market-data normalizer and order-book rebuild (C++) | Planned (weeks 9-12) | Market-data tooling across venues |
-| 4 | Event-driven market-making backtester | Planned (weeks 13-15) | Latency, queue position, honest strategy evaluation |
+| 3 | [Market-data normalizer and book rebuild](projects/03-market-data) | Built | Two venue formats into one fixed-point schema, gap detection and resync, merged view, one-command benchmark (C++) |
+| 4 | [Market-making backtester](projects/04-backtester) | Built | Latency, cancels in flight, three queue models, a 96-cell sensitivity study showing how optimistic fills inflate results |
 
 ## Learn and trace everything
 
