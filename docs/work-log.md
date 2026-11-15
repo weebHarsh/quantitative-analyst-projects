@@ -20,6 +20,7 @@ What was done, in order, who did it (model tier), and the evidence. Append a row
 | 2026-11-15 | Six concept learning notes | `4cd2d3d` | Sonnet (checked by me: t-stat arithmetic recomputed) | `docs/learning/*.md` | D22 |
 | 2026-11-15 | Decision log, work log, study guide | `2e258fa` | me | these files | D21-D23 |
 | 2026-11-15 | Project 3 design spec (810 lines), seeded two-venue feed generator with fault injection, 24 generator tests, 40 KB golden fixtures | `fad9aca` | Opus | 24 tests pass (rerun by me) | D25, D29-D33 |
+| 2026-11-15 | Project 3 C++ core: event types, fixed-point, both parsers, L2 book, sequencer with gap/resync, mdtool normalize and replay | next commit | Sonnet | 51 tests, 21,758 checks; normal and sanitizer builds clean | D34 |
 
 ## Test totals at each milestone
 - After Project 1: 16 tests.

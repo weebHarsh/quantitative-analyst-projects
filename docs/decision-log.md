@@ -224,6 +224,12 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Why:** Exact arithmetic in the book, a build that needs nothing installed, and a repo that stays small.
 - **Status:** Active.
 
+### D34. Project 3 implementation choices beyond the spec (2026-11-15)
+- **Decision:** (a) Build with `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Werror`, stricter than the roadmap's `-Wall -Wextra`. (b) Zero-quantity snapshot levels in Venue A, and `D` with a nonzero size or `N`/`C`/`SL` with a zero size in Venue B, are parse errors (counted, never a crash). (c) `mdtool` exit codes: 2 usage, 3 I/O, 4 parse errors, 5 checkpoint mismatch, with 5 taking priority over 4. (d) `Book::set_level` with quantity 0 removes the level without an assert, because the sanitizer build is a Debug build and an assert would abort.
+- **Why:** The spec left these open; making them strict surfaces bad input instead of hiding it.
+- **Evidence:** `projects/03-market-data/src/`, `tests/` (51 tests, 21,758 checks; both the normal and the ASan+UBSan builds pass with zero warnings, rerun by me from a clean state).
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
