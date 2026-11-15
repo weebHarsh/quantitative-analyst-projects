@@ -1,0 +1,11 @@
+date: 2026-11-15T15:50:20+00:00
+bt_run: build/bt_run (c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0; build type Release)
+seeds: [7, 8, 9]
+feed hours per seed: 1
+latencies (ms): [0.0, 1.0, 5.0, 20.0]
+models: optimistic,fifo_back,fifo_cancel_ahead:0.25,fifo_cancel_ahead:0.5
+cross fills: ['on', 'off']
+cells: 96
+jobs: 4
+total wall time (s): 9.3
+data: synthetic (Project 3 generator), not live PnL
