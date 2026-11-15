@@ -58,7 +58,7 @@ std::string fee_text(double fee_bps, const Fill& f) {
     const double fee = ((fee_bps * 1e-4) * (static_cast<double>(f.px_ticks) / 100.0)) *
                        (static_cast<double>(f.qty_lots) / 1000.0);
     char buf[64];
-    std::snprintf(buf, sizeof(buf), "%.17g", fee);
+    std::snprintf(buf, sizeof(buf), "%.12f", fee);  // fixed 12 decimals: stable, readable, deterministic
     return buf;
 }
 

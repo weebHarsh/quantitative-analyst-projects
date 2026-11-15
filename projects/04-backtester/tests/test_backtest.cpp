@@ -124,7 +124,7 @@ TEST(output_fills_csv_formatting) {
     auto expected_fee = [](double bps, std::int64_t px, std::int64_t qty) {
         const double fee = ((bps * 1e-4) * (static_cast<double>(px) / 100.0)) * (static_cast<double>(qty) / 1000.0);
         char buf[64];
-        std::snprintf(buf, sizeof(buf), "%.17g", fee);
+        std::snprintf(buf, sizeof(buf), "%.12f", fee);
         return std::string(buf);
     };
     CHECK(lines[1] == "1700000000123456,1,99.97,1.500," + expected_fee(0.1, 9997, 1500));

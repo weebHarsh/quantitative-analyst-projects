@@ -299,6 +299,14 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Cosmetic issue left open:** some fee values in `fills.csv` print with 17 significant digits (for example `0.00020000000000000001`). They parse correctly; formatting can be tightened in the Python pass.
 - **Status:** Active.
 
+### D45. The sensitivity study must show the cross-fill rule ON and OFF (2026-11-15)
+- **What I saw:** The first full study (48 cells, 3 seeds x 1 hour, rerun by me byte-for-byte) showed latency barely changing PnL or fills, and strongly negative spread capture (about -27 to -30) for every FIFO model. That looked wrong, so I ran the design's ablation switch (`--cross-fills off`) on the seed-7 feed.
+- **Finding:** With the cross-fill rule ON (the design's default: when the market moves onto a resting order it fills once at our price, regardless of queue position), about 7,500 of FIFO_BACK's 9,622 fills come from that rule, and those fills are what drive spread capture to -28.9. With it OFF, FIFO_BACK has 2,087 fills, spread capture +5.9 and a 1 s markout of +0.405 bps at 0 ms, and latency now clearly matters: the markout falls to +0.253 bps and spread capture to +4.6 at 20 ms, while fills rise from 2,087 to 2,505. So with the rule ON the latency effect is hidden, not absent.
+- **Decision:** Report both settings side by side in the results, the table and the charts; say plainly that the rule ON results are dominated by cross-rule fills and that its queue-less filling is itself an optimistic-style assumption; keep the default unchanged (it is the design's choice) rather than quietly switching to the more flattering setting.
+- **Why:** A study that only showed the default would have told readers latency does not matter, which is an artefact of one modelling choice. This is exactly the kind of inflation the project is meant to expose.
+- **Evidence:** `projects/04-backtester/results/` (both settings), `python/sensitivity.py`; my ablation run on seed 7 is reproduced in the harness.
+- **Status:** Active.
+
 ## Not done on purpose
 - No real-venue data or adapters (D25).
 - No public hosting of the monitor (D20).
@@ -306,5 +314,5 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - Did not tick the CodeRabbit "Autofix" checkbox on PR #1: it would invite a bot to push to your branch, which you have not asked for (2026-11-15).
 
 ## Open items
-- Project 4 implementation is in progress; add its decisions as D45 onward.
+- Project 4 implementation is in progress; add its decisions as D46 onward.
 - Verify firm and job facts against the live pages (see `docs/firm-landscape.md`).
