@@ -12,7 +12,7 @@ A C++17 normalizer that turns two synthetic venue feeds into one fixed-point eve
 
 ## Results
 
-- **C++ tests:** 76 pass in the normal build and in the AddressSanitizer + UBSan build. Both build with `-Werror` and zero warnings.
+- **C++ tests:** 85 pass (76 plus 9 regression tests added after the independent review) in the normal build and in the AddressSanitizer + UBSan build. Both build with `-Werror` and zero warnings.
 - **Python tests:** 32 pass: 24 generator tests (`python/test_gen_feeds.py`) and 8 integration tests (`python/test_pta_integration.py`).
 - **Golden files:** events, merge and export outputs are byte-identical to the committed expected files in `tests/golden/`.
 - **Faulted feed:** on a 15-minute feed generated with `--faults`, each venue reports `gaps=2, out_of_order=1, duplicates_ignored=1, crossed_detected=1, resyncs=3`. The rebuilt book equals the venue's own checkpoint snapshots.

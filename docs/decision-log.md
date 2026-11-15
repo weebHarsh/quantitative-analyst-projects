@@ -228,7 +228,7 @@ Format: **Decision**, **Why**, **Alternatives**, **Consequence**, **Evidence**, 
 - **Decision:** (a) Build with `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Werror`, stricter than the roadmap's `-Wall -Wextra`. (b) Zero-quantity snapshot levels in Venue A, and `D` with a nonzero size or `N`/`C`/`SL` with a zero size in Venue B, are parse errors (counted, never a crash). (c) `mdtool` exit codes: 2 usage, 3 I/O, 4 parse errors, 5 checkpoint mismatch, with 5 taking priority over 4. (d) `Book::set_level` with quantity 0 removes the level without an assert, because the sanitizer build is a Debug build and an assert would abort.
 - **Why:** The spec left these open; making them strict surfaces bad input instead of hiding it.
 - **Known design mismatch:** `DESIGN.md` section 12 names `python/test_cpp_integration.py`; the integration test that exists is `python/test_pta_integration.py` (it runs `mdtool export` and loads the result with Project 1).
-- **Evidence:** `projects/03-market-data/src/`, `tests/` (at pass 1: 51 tests, 21,758 checks; after pass 2 the suite is 76 tests; both the normal and the ASan+UBSan builds pass with zero warnings, rerun by me from a clean state).
+- **Evidence:** `projects/03-market-data/src/`, `tests/` (at pass 1: 51 tests, 21,758 checks; after pass 2 the suite was 76 tests (85 after the review fixes, D43); both the normal and the ASan+UBSan builds pass with zero warnings, rerun by me from a clean state).
 - **Status:** Active.
 
 ### D35. Benchmark method and how to read it (2026-11-15)
