@@ -1,0 +1,20 @@
+scenario bad: seed 7, 2 h, 72000 quotes, 4851 fills
+phases (session seconds):
+  normal              0.0 ..    1800.0
+  adverse          1800.0 ..    2880.0
+  inventory_run    2880.0 ..    3600.0
+  drought          3600.0 ..    4320.0
+  recovery         4320.0 ..    7200.0
+    t (s)  rule                 severity  value vs threshold  phase        
+   1836.2  markout_degradation  breach    -0.7666 vs -0.75    adverse      
+   2646.9  loss_from_peak       warn      100.2 vs 100        adverse      
+   2922.9  position             warn      61 vs 60            inventory_run
+   3139.0  position             breach    101 vs 100          inventory_run
+   3159.3  markout_degradation  clear     -0.2261 vs -0.25    inventory_run
+   3497.3  loss_from_peak       breach    200.7 vs 200        inventory_run
+   3649.4  fill_rate            breach    5 vs 6              drought      
+   4338.7  fill_rate            clear     10 vs 10            recovery     
+   4613.4  position             clear     37 vs 40            recovery     
+final PnL: total -114.81 = spread 57.87 + stock moves -162.92 - fees 9.76
+position 7, max drawdown 366.43, fills 4851
+wrote /tmp/claude-0/-home-user-quantitative-analyst-projects/21cea8b8-5df8-502a-8703-d1dc411bea62/scratchpad/demo/bad/ market.csv fills.csv alerts.jsonl snapshot.json

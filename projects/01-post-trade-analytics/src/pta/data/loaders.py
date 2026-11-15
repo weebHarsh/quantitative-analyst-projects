@@ -48,8 +48,9 @@ def load_market(path: str | Path) -> pd.DataFrame:
 
 def load_fills(path: str | Path) -> pd.DataFrame:
     df = pd.read_csv(path)
-    for c in ("ts_us", "side", "qty"):
+    for c in ("ts_us", "side"):
         df[c] = df[c].astype("int64")
+    df["qty"] = df["qty"].astype("float64")  # fractional quantities are legitimate (e.g. crypto)
     return df[FILL_COLS]
 
 
@@ -59,10 +60,13 @@ def market_from_quotes(df: pd.DataFrame, ts_col: str, bid_col: str, ask_col: str
 
     ts_unit is the unit of ts_col: 'ns', 'us' or 'ms'. Duplicate timestamps keep
     the last quote. Column names are yours to supply; no vendor layout is assumed.
+    Timestamps are converted with integer arithmetic; epoch nanoseconds do not fit
+    exactly in a float64.
     """
-    scale = {"ns": 1e-3, "us": 1.0, "ms": 1e3}[ts_unit]
+    raw = df[ts_col].to_numpy(dtype="int64")
+    ts_us = {"ns": lambda v: v // 1000, "us": lambda v: v, "ms": lambda v: v * 1000}[ts_unit](raw)
     out = pd.DataFrame({
-        "ts_us": (df[ts_col].to_numpy(dtype="float64") * scale).astype("int64"),
+        "ts_us": ts_us,
         "bid": df[bid_col].to_numpy(dtype="float64"),
         "ask": df[ask_col].to_numpy(dtype="float64"),
     })

@@ -1,0 +1,46 @@
+# rmon alert limits. Every key is required; unknown keys are rejected.
+# Calibrated on the clean synthetic session (pta defaults: MarketConfig(seed, hours=2),
+# MMConfig()), seeds 1..20, plus seed 7 over 6 h. "clean max" below is the worst
+# value seen over those 21 sessions; see tests/test_scenario_demo.py.
+# Units: inventory in units of the instrument, money in currency, times in
+# microseconds of event time, markouts in bps.
+
+[position]
+# Absolute inventory. Protects against a runaway one-sided position (broken skew,
+# stuck quote, missed hedge). Clean max |position| = 36; the default market maker
+# caps itself at max_inv 50 (+ one lot), so a clean session cannot exceed 52.
+warn = 60           # 1.67x the clean max, above the strategy's own hard cap
+breach = 100        # 2x the strategy cap: inventory is no longer under its control
+hysteresis = 20     # clears once |position| < 40, i.e. back inside the strategy's band
+cooldown_us = 60_000_000      # 60 s between fires after a clear
+
+[loss_from_peak]
+# Drawdown from the running equity peak (peak - equity), in currency. Protects
+# against a session bleeding out (adverse selection or an unhedged position moving).
+# Clean max drawdown = 77 (seed 14); median over seeds about 20.
+warn = 100          # 1.3x the worst clean drawdown, 5x the median
+breach = 200        # 2.6x the worst clean drawdown
+hysteresis = 25     # clears once drawdown < 75 (needs a real recovery of equity)
+cooldown_us = 300_000_000     # 5 min between fires after a clear
+
+[fill_rate]
+# Fills counted over a rolling window. Too few: the strategy has stopped quoting or
+# is mispriced away from the touch (drought). Too many: a runaway / crossed quote.
+# Clean window_fills after warm-up: min 14, max 74 per 60 s (mean about 44).
+window_us = 60_000_000        # must match the MonitorState fill window
+min_fills = 6       # 8 fills below the clean min (Poisson P(<6 | mean 44) ~ 1e-11)
+max_fills = 150     # 2x the clean max
+warmup_us = 120_000_000       # first 2 min: the window is still filling up
+hysteresis = 4      # clears once 10 <= window_fills <= 146
+cooldown_us = 120_000_000     # 2 min between fires after a clear
+
+[markout]
+# Rolling quantity-weighted markout at one horizon. Protects against being
+# adversely selected (toxic flow, stale quotes). Clean rolling 1 s markout over a
+# 300 s window, with >= 50 samples: min -0.017 bps (6 h), mean about +0.37 bps.
+horizon_us = 1_000_000        # 1 s markout
+window_us = 300_000_000       # 5 min rolling window (resolution time)
+floor_bps = -0.75   # 0.73 bps below the worst clean value (about 1.1 bps below mean)
+min_samples = 50    # about 1 min of fills; fewer and the average is noise
+hysteresis_bps = 0.5          # clears once rolling markout >= -0.25 bps
+cooldown_us = 300_000_000     # 5 min between fires after a clear

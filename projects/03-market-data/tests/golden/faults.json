@@ -1,0 +1,91 @@
+{
+ "seed": 7,
+ "faults_enabled": true,
+ "faults": [
+  {
+   "kind": "drop",
+   "venue": "A",
+   "clean_msg_index": 14,
+   "first_seq": 1000015,
+   "last_seq": 1000015,
+   "msg_index": 14,
+   "note": "message removed; msg_index is the message that now follows the hole"
+  },
+  {
+   "kind": "duplicate",
+   "venue": "A",
+   "clean_msg_index": 22,
+   "first_seq": 1000025,
+   "last_seq": 1000025,
+   "msg_index": 22
+  },
+  {
+   "kind": "crossed",
+   "venue": "A",
+   "clean_msg_index": 29,
+   "first_seq": 1000033,
+   "last_seq": 1000033,
+   "msg_index": 29,
+   "side": "BID",
+   "price_ticks": 9999,
+   "note": "bid level injected at best ask + 1 tick (A: entry added; B: row replaced)"
+  },
+  {
+   "kind": "drop",
+   "venue": "B",
+   "clean_msg_index": 19,
+   "id": 5000019,
+   "prev_id": 5000016,
+   "msg_index": 19,
+   "note": "message removed; msg_index is the message that now follows the hole"
+  },
+  {
+   "kind": "duplicate",
+   "venue": "B",
+   "clean_msg_index": 38,
+   "id": 5000039,
+   "prev_id": 5000036,
+   "msg_index": 38
+  },
+  {
+   "kind": "crossed",
+   "venue": "B",
+   "clean_msg_index": 55,
+   "id": 5000058,
+   "prev_id": 5000056,
+   "msg_index": 55,
+   "side": "BID",
+   "price_ticks": 10000,
+   "note": "bid level injected at best ask + 1 tick (A: entry added; B: row replaced)"
+  }
+ ],
+ "expected_counters": {
+  "A": {
+   "gaps": 1,
+   "resyncs": 2,
+   "duplicates_ignored": 1,
+   "out_of_order": 0,
+   "crossed_detected": 1,
+   "locked_detected": 0,
+   "checkpoints_matched": 2,
+   "checkpoints_mismatched": 0,
+   "checkpoints_skipped_stale": 2,
+   "snapshots_ignored_late": 0,
+   "parse_errors": 0
+  },
+  "B": {
+   "gaps": 1,
+   "resyncs": 2,
+   "duplicates_ignored": 1,
+   "out_of_order": 0,
+   "crossed_detected": 1,
+   "locked_detected": 0,
+   "checkpoints_matched": 3,
+   "checkpoints_mismatched": 0,
+   "checkpoints_skipped_stale": 2,
+   "snapshots_ignored_late": 0,
+   "parse_errors": 0
+  }
+ },
+ "msg_index_rule": "0-based line index in the written file; Venue B excludes the header"
+}

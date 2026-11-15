@@ -1,0 +1,309 @@
+<title>One Board, Two Venues</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column of panels. Each panel is headline, large picture, one caption.
+   Anchoring analogy: a price board on a wall that two outside sources keep phoning updates into. */
+:root {
+  --bg: #f2f5f7;
+  --surface: #ffffff;
+  --fg: #122229;
+  --muted: #566872;
+  --line: #c4d0d7;
+  --accent: #0a7c76;
+  --accent-soft: #d3ece9;
+  --neg: #c2410c;
+  --neg-soft: #fbe3d6;
+  --warn: #a8660a;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+    --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616; --warn: #f2b84b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1a20; --surface: #14252d; --fg: #e6eef1; --muted: #93a8b2; --line: #2b414b;
+  --accent: #3cc4bb; --accent-soft: #12403f; --neg: #ff8a5c; --neg-soft: #4a2616; --warn: #f2b84b;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-body);
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 720px; margin: 0 auto; display: grid; gap: 44px; }
+h1 { font: 700 2.1rem/1.1 var(--font-display); margin: 0; text-wrap: balance; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+h2 { font: 700 1.45rem/1.2 var(--font-display); margin: 0; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+.plate { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+svg.fig { display: block; width: 100%; height: auto; }
+figcaption { color: var(--muted); font-size: 0.97rem; }
+.body { margin: 0; max-width: 62ch; }
+.src { color: var(--muted); font: 500 0.78rem/1.4 var(--font-mono); margin: 0; }
+b.term { font-weight: 600; }
+
+svg text { font-family: var(--font-body); font-size: 20px; fill: var(--fg); }
+svg .m { fill: var(--muted); }
+svg .n { font-family: var(--font-mono); font-weight: 700; }
+svg .s { font-size: 15px; }
+svg .xs { font-size: 13px; }
+svg .big { font-size: 25px; }
+svg .a { fill: var(--accent); }
+svg .r { fill: var(--neg); }
+svg .w { fill: var(--warn); }
+svg .ln { stroke: var(--fg); stroke-width: 2.5; fill: none; }
+svg .ln-m { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+svg .dash { stroke-dasharray: 6 6; }
+svg .box { fill: var(--surface); stroke: var(--fg); stroke-width: 2.5; }
+svg .box-a { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+svg .box-r { fill: var(--neg-soft); stroke: var(--neg); stroke-width: 2.5; }
+svg .zone-a { fill: var(--accent-soft); }
+svg .zone-r { fill: var(--neg-soft); }
+svg .d-a { fill: var(--accent); }
+svg .d-r { fill: var(--neg); }
+svg .d-w { fill: var(--warn); }
+svg .num { fill: var(--bg); font-family: var(--font-mono); font-weight: 700; font-size: 13px; }
+#ah path { fill: var(--fg); }
+@media (max-width: 480px) { h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; } .plate { padding: 8px; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z"/>
+    </marker>
+  </defs>
+</svg>
+
+<main>
+  <header>
+    <h1>One board, two venues</h1>
+    <p class="src">Numbers: tests and benchmark run on 2026-11-15, synthetic feeds. Source: projects/03-market-data/README.md and bench/run_bench.sh</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="panel">
+    <h2>Two venues send updates in different formats. We need one board.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 260" role="img" aria-label="Venue A text lines and Venue B table rows go into a normalizer and come out as one price board">
+          <rect x="16" y="36" width="150" height="72" class="box"/>
+          <text x="91" y="66" text-anchor="middle">Venue A</text>
+          <text x="91" y="92" text-anchor="middle" class="s m">JSON lines</text>
+          <rect x="16" y="152" width="150" height="72" class="box"/>
+          <text x="91" y="182" text-anchor="middle">Venue B</text>
+          <text x="91" y="208" text-anchor="middle" class="s m">CSV rows</text>
+          <line x1="168" y1="76" x2="236" y2="118" class="ln" marker-end="url(#ah)"/>
+          <line x1="168" y1="190" x2="236" y2="148" class="ln" marker-end="url(#ah)"/>
+          <rect x="238" y="96" width="120" height="74" class="box-a"/>
+          <text x="298" y="130" text-anchor="middle" class="a">normalizer</text>
+          <text x="298" y="154" text-anchor="middle" class="s m">one schema</text>
+          <line x1="360" y1="133" x2="428" y2="133" class="ln" marker-end="url(#ah)"/>
+          <text x="394" y="118" text-anchor="middle" class="s m">events</text>
+          <!-- board -->
+          <rect x="432" y="30" width="152" height="32" class="zone-r"/><text x="442" y="52" class="n s">100.02</text><text x="574" y="52" text-anchor="end" class="n s">2.000</text>
+          <rect x="432" y="64" width="152" height="32" class="zone-r"/><text x="442" y="86" class="n s">100.01</text><text x="574" y="86" text-anchor="end" class="n s">0.500</text>
+          <rect x="432" y="132" width="152" height="32" class="zone-a"/><text x="442" y="154" class="n s">100.00</text><text x="574" y="154" text-anchor="end" class="n s">1.250</text>
+          <rect x="432" y="166" width="152" height="32" class="zone-a"/><text x="442" y="188" class="n s">99.99</text><text x="574" y="188" text-anchor="end" class="n s">3.000</text>
+          <text x="508" y="120" text-anchor="middle" class="xs m">the gap</text>
+          <text x="508" y="222" text-anchor="middle" class="s m">price board</text>
+        </svg>
+      </div>
+      <figcaption>Sellers on top, buyers below. This board is the level 2 order book.</figcaption>
+    </figure>
+    <p class="body">Each venue describes the same market in its own way. The program turns both into one set of events, then keeps one board per venue.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="panel">
+    <h2>Each update edits the board, and zero quantity means remove.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 270" role="img" aria-label="An update setting 100.00 to zero removes that buyer row, so the best buyer becomes 99.99">
+          <text x="100" y="26" text-anchor="middle" class="m">before</text>
+          <rect x="20" y="40" width="160" height="34" class="zone-r"/><text x="32" y="63" class="n s">100.01</text><text x="170" y="63" text-anchor="end" class="n s">0.500</text>
+          <rect x="20" y="108" width="160" height="34" class="zone-r" opacity="0.001"/>
+          <rect x="20" y="108" width="160" height="34" class="box-r"/><text x="32" y="131" class="n s">100.00</text><text x="170" y="131" text-anchor="end" class="n s">1.250</text>
+          <rect x="20" y="144" width="160" height="34" class="zone-a"/><text x="32" y="167" class="n s">99.99</text><text x="170" y="167" text-anchor="end" class="n s">3.000</text>
+          <line x1="190" y1="126" x2="410" y2="126" class="ln" marker-end="url(#ah)"/>
+          <text x="300" y="108" text-anchor="middle">set 100.00 to 0</text>
+          <text x="300" y="152" text-anchor="middle" class="s m">an update message</text>
+          <text x="500" y="26" text-anchor="middle" class="m">after</text>
+          <rect x="420" y="40" width="160" height="34" class="zone-r"/><text x="432" y="63" class="n s">100.01</text><text x="570" y="63" text-anchor="end" class="n s">0.500</text>
+          <rect x="420" y="108" width="160" height="34" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 5"/><text x="500" y="131" text-anchor="middle" class="s m">row removed</text>
+          <rect x="420" y="144" width="160" height="34" class="zone-a"/><text x="432" y="167" class="n s">99.99</text><text x="570" y="167" text-anchor="end" class="n s">3.000</text>
+          <text x="500" y="214" text-anchor="middle" class="a">best buyer: 99.99</text>
+          <text x="100" y="214" text-anchor="middle" class="s m">best buyer: 100.00</text>
+        </svg>
+      </div>
+      <figcaption>The best price on a side is its top row, so removing a row can move it.</figcaption>
+    </figure>
+    <p class="body">A tested rule: the book never stores a row with zero quantity. A checker also flags a board where a buyer is at or above a seller (crossed or locked).</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="panel">
+    <h2>Prices are whole numbers of ticks, never decimals.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 250" role="img" aria-label="Decimal arithmetic gives 0.30000000000000004 while whole-number ticks give exactly 30; 100.01 becomes 10001 ticks and 1.250 becomes 1250 lots">
+          <rect x="20" y="20" width="270" height="200" class="box-r"/>
+          <text x="155" y="52" text-anchor="middle" class="r">decimals</text>
+          <text x="155" y="100" text-anchor="middle" class="n s">0.1 + 0.2</text>
+          <text x="155" y="136" text-anchor="middle" class="n r">0.30000000000000004</text>
+          <text x="155" y="190" text-anchor="middle" class="s m">tiny errors pile up</text>
+          <rect x="310" y="20" width="270" height="200" class="box-a"/>
+          <text x="445" y="52" text-anchor="middle" class="a">whole numbers</text>
+          <text x="445" y="92" text-anchor="middle" class="n s">100.01 → 10001 ticks</text>
+          <text x="445" y="122" text-anchor="middle" class="n s">1.250 → 1250 lots</text>
+          <text x="445" y="160" text-anchor="middle" class="n a">10 + 20 = 30</text>
+          <text x="445" y="190" text-anchor="middle" class="s m">always exact</text>
+        </svg>
+      </div>
+      <figcaption>A tick is the smallest price step, 0.01 here. A lot is the smallest quantity step, 0.001.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 4 -->
+  <section class="panel">
+    <h2>A missing message means the board may be wrong.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 320" role="img" aria-label="Messages 101 to 104 arrive, 105 to 106 go missing, the board goes stale, later messages are held, and a full snapshot restores it">
+          <text x="20" y="28" class="m">messages</text>
+          <rect x="20" y="40" width="100" height="44" class="box"/><text x="70" y="68" text-anchor="middle" class="n s">101–102</text>
+          <rect x="136" y="40" width="100" height="44" class="box"/><text x="186" y="68" text-anchor="middle" class="n s">103–104</text>
+          <rect x="252" y="40" width="100" height="44" fill="none" stroke="var(--neg)" stroke-width="2.5" stroke-dasharray="6 6"/><text x="302" y="68" text-anchor="middle" class="n s r">105–106</text>
+          <rect x="368" y="40" width="100" height="44" class="box"/><text x="418" y="68" text-anchor="middle" class="n s">107–108</text>
+          <rect x="484" y="40" width="96" height="44" class="box-a"/><text x="532" y="68" text-anchor="middle" class="s a">snapshot</text>
+          <text x="302" y="108" text-anchor="middle" class="r">lost: gap</text>
+          <line x1="418" y1="88" x2="418" y2="146" class="ln" marker-end="url(#ah)"/>
+          <text x="418" y="168" text-anchor="middle">held, not applied</text>
+          <text x="20" y="214" class="m">board</text>
+          <rect x="20" y="226" width="232" height="26" class="bar-ln" fill="var(--accent)"/>
+          <text x="136" y="244" text-anchor="middle" class="s" style="fill:var(--bg)">live</text>
+          <rect x="252" y="226" width="228" height="26" fill="var(--neg)"/>
+          <text x="366" y="244" text-anchor="middle" class="s" style="fill:var(--bg)">stale, stop publishing</text>
+          <rect x="480" y="226" width="100" height="26" fill="var(--accent)"/>
+          <text x="530" y="244" text-anchor="middle" class="s" style="fill:var(--bg)">live again</text>
+          <line x1="532" y1="88" x2="532" y2="222" class="ln dash"/>
+          <text x="300" y="296" text-anchor="middle" class="s m">the snapshot drops held messages it already covers and applies the rest</text>
+        </svg>
+      </div>
+      <figcaption>Venue A numbers its messages in ranges. A hole means the board cannot be trusted until a full snapshot arrives.</figcaption>
+    </figure>
+    <p class="body">On a 15-minute test feed with injected faults, each venue showed 2 gaps and 3 resyncs. After each resync the rebuilt board matched the venue's own checkpoint (a full image the venue sends every so often).</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="panel">
+    <h2>Three kinds of bad message, three different responses.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 240" role="img" aria-label="Duplicates are ignored, out-of-order messages are treated as a gap, and a crossed book triggers distrust and resync">
+          <rect x="12" y="16" width="184" height="200" class="box"/>
+          <text x="104" y="48" text-anchor="middle">duplicate</text>
+          <rect x="34" y="70" width="60" height="34" class="box"/><text x="64" y="93" text-anchor="middle" class="n s">103</text>
+          <rect x="114" y="70" width="60" height="34" class="box"/><text x="144" y="93" text-anchor="middle" class="n s">103</text>
+          <text x="104" y="150" text-anchor="middle" class="a">ignore it</text>
+          <text x="104" y="184" text-anchor="middle" class="s m">counted, not applied</text>
+
+          <rect x="208" y="16" width="184" height="200" class="box"/>
+          <text x="300" y="48" text-anchor="middle">out of order</text>
+          <rect x="230" y="70" width="60" height="34" class="box"/><text x="260" y="93" text-anchor="middle" class="n s">104</text>
+          <rect x="310" y="70" width="60" height="34" class="box"/><text x="340" y="93" text-anchor="middle" class="n s">103</text>
+          <text x="300" y="150" text-anchor="middle" class="r">treat as a gap</text>
+          <text x="300" y="184" text-anchor="middle" class="s m">then resync</text>
+
+          <rect x="404" y="16" width="184" height="200" class="box"/>
+          <text x="496" y="48" text-anchor="middle">crossed book</text>
+          <text x="496" y="88" text-anchor="middle" class="n s">buyer 100.02</text>
+          <text x="496" y="112" text-anchor="middle" class="n s">seller 100.01</text>
+          <text x="496" y="150" text-anchor="middle" class="r">distrust it</text>
+          <text x="496" y="184" text-anchor="middle" class="s m">then resync</text>
+        </svg>
+      </div>
+      <figcaption>Every case is counted, so a test can check the exact numbers.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 6 -->
+  <section class="panel">
+    <h2>Merge the boards, and leave out any stale venue.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 280" role="img" aria-label="Venue A bids 100.00 and asks 100.02, Venue B bids 99.99 and asks 100.01, so the merged best bid is 100.00 from A and best ask is 100.01 from B">
+          <line x1="40" y1="130" x2="560" y2="130" class="ln-m"/>
+          <circle cx="144" cy="130" r="9" class="d-a"/><circle cx="248" cy="130" r="9" class="d-a"/>
+          <circle cx="352" cy="130" r="9" class="d-r"/><circle cx="456" cy="130" r="9" class="d-r"/>
+          <text x="144" y="164" text-anchor="middle" class="n s">99.99</text>
+          <text x="248" y="164" text-anchor="middle" class="n s">100.00</text>
+          <text x="352" y="164" text-anchor="middle" class="n s">100.01</text>
+          <text x="456" y="164" text-anchor="middle" class="n s">100.02</text>
+          <text x="144" y="100" text-anchor="middle" class="s m">B buys</text>
+          <text x="248" y="100" text-anchor="middle" class="s">A buys</text>
+          <text x="352" y="100" text-anchor="middle" class="s">B sells</text>
+          <text x="456" y="100" text-anchor="middle" class="s m">A sells</text>
+          <line x1="248" y1="196" x2="352" y2="196" class="ln" marker-start="url(#ah)" marker-end="url(#ah)"/>
+          <text x="300" y="226" text-anchor="middle" class="a">merged: 100.00 / 100.01</text>
+          <text x="300" y="256" text-anchor="middle" class="s m">best buyer from A, best seller from B</text>
+        </svg>
+      </div>
+      <figcaption>The merged view takes the highest buyer and the lowest seller across fresh venues.</figcaption>
+    </figure>
+    <p class="body">A merged quote where buyer meets seller (locked) happens because Venue B lags Venue A: 1,017 times in one 15-minute test feed. The export filters them out.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="panel">
+    <h2>Millions of updates a second, each applied in about 70 nanoseconds.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 330" role="img" aria-label="Parsing runs at 3.95 million events per second, merged apply at 23.1 million, end to end at 2.02 million; applying one update takes a median 71 nanoseconds and 158 at the 99th percentile, against 28 nanoseconds of timer cost">
+          <text x="20" y="28" class="m">events per second (millions)</text>
+          <text x="20" y="66">parse</text><rect x="170" y="48" width="71.8" height="26" class="bar-a" fill="var(--accent)"/><text x="253" y="68" class="n s">3.95</text>
+          <text x="20" y="108">apply</text><rect x="170" y="90" width="420" height="26" fill="var(--accent)"/><text x="560" y="108" text-anchor="end" class="n s" style="fill:var(--bg)">23.1</text>
+          <text x="20" y="150">end to end</text><rect x="170" y="132" width="36.7" height="26" fill="var(--accent)"/><text x="219" y="152" class="n s">2.02</text>
+          <text x="20" y="206" class="m">time per update (nanoseconds)</text>
+          <text x="20" y="244">median</text><rect x="170" y="226" width="142" height="26" fill="var(--accent)"/><text x="324" y="246" class="n s">71</text>
+          <text x="20" y="284">99th pct</text><rect x="170" y="266" width="316" height="26" fill="var(--neg)"/><text x="498" y="286" class="n s">158</text>
+          <text x="20" y="320" class="s m">timer cost</text><rect x="170" y="306" width="56" height="14" fill="var(--muted)"/><text x="238" y="318" class="n xs m">28</text>
+        </svg>
+      </div>
+      <figcaption>One shared machine, synthetic feeds, about 30% run-to-run variation. Read these as orders of magnitude.</figcaption>
+    </figure>
+    <p class="body">The timer's own cost (28 ns) is included in the update times, so they are upper bounds. Parsing, not the board, is the slowest step.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="panel">
+    <h2>The clean quote file feeds Project 1 and, next, Project 4.</h2>
+    <figure>
+      <div class="plate">
+        <svg class="fig" viewBox="0 0 600 220" role="img" aria-label="The normalizer writes a quotes file that Project 1 turns into a report; Project 4 is next">
+          <rect x="16" y="76" width="120" height="64" class="box-a"/><text x="76" y="114" text-anchor="middle" class="a">normalizer</text>
+          <line x1="138" y1="108" x2="206" y2="108" class="ln" marker-end="url(#ah)"/>
+          <text x="172" y="92" text-anchor="middle" class="s m">export</text>
+          <rect x="208" y="76" width="120" height="64" class="box"/><text x="268" y="106" text-anchor="middle" class="s">quotes file</text><text x="268" y="128" text-anchor="middle" class="n xs m">ts,bid,ask,mid</text>
+          <line x1="330" y1="108" x2="398" y2="108" class="ln" marker-end="url(#ah)"/>
+          <text x="364" y="92" text-anchor="middle" class="s m">reads</text>
+          <rect x="400" y="76" width="184" height="64" class="box"/><text x="492" y="114" text-anchor="middle">Project 1 report</text>
+          <path d="M268 142 C268 190 492 190 492 150" class="ln-m dash" marker-end="url(#ah)"/>
+          <text x="380" y="206" text-anchor="middle" class="s m">next: Project 4 backtester</text>
+        </svg>
+      </div>
+      <figcaption>A test loads the export with Project 1 and checks it is strictly increasing in time.</figcaption>
+    </figure>
+    <p class="body">These feeds are synthetic and the two formats are modelled, not copied from a real venue. The method is real. No real venue was reachable.</p>
+  </section>
+</main>
