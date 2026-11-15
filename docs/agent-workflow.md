@@ -25,6 +25,14 @@ the topic. Chat replies stay short and link to it. This applies to three things:
 Each project's README links its approach and architecture explainers. Explainer
 numbers come from tested output, never from memory.
 
+## Everything is logged (standing rule from the user)
+
+Nothing is decided or built without a trace you can follow later:
+- **Decision log** ([decision-log.md](decision-log.md)): every decision, why, the alternatives, the evidence, and its status. Append-only; a changed decision gets a new entry that supersedes the old one, and the history stays.
+- **Work log** ([work-log.md](work-log.md)): one row per milestone with the commit, who did it (model tier), and the evidence.
+- **Study guide** ([learning/STUDY-GUIDE.md](learning/STUDY-GUIDE.md)): the single place to learn everything, with the trace map from concept to code, test, decision and commit.
+- When a step finishes, update all three in the same commit as the work, or the next one.
+
 ## Rules
 
 1. **Decide before delegating.** A task goes to Sonnet or Haiku only once the design

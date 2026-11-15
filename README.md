@@ -17,6 +17,12 @@ rather than a generic "predict the stock price" notebook.
 | 3 | Multi-exchange market-data normalizer and order-book rebuild (C++) | Planned (weeks 9-12) | Market-data tooling across venues |
 | 4 | Event-driven market-making backtester | Planned (weeks 13-15) | Latency, queue position, honest strategy evaluation |
 
+## Learn and trace everything
+
+- [Study guide](docs/learning/STUDY-GUIDE.md): learning path, concept-to-code-to-test trace map, runnable exercises, glossary, self-test
+- [Decision log](docs/decision-log.md): every decision with its reason, alternatives and evidence
+- [Work log](docs/work-log.md): what was done, when, by which model tier, at which commit
+
 ## Docs
 
 - [Roadmap](docs/roadmap.md): 16-week plan, project scoring, milestones and exit criteria
